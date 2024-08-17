@@ -64,8 +64,8 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Dive"",
-                    ""type"": ""PassThrough"",
+                    ""name"": ""Dodge"",
+                    ""type"": ""Button"",
                     ""id"": ""6d4a5cb6-3db6-4b7a-be83-b7f2c373111d"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
@@ -83,21 +83,21 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""LeftClick"",
-                    ""type"": ""Button"",
+                    ""type"": ""PassThrough"",
                     ""id"": ""89cbe64e-2c9b-40f7-a031-1447f9f26cc4"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
                 },
                 {
                     ""name"": ""RightClick"",
-                    ""type"": ""Button"",
+                    ""type"": ""PassThrough"",
                     ""id"": ""8dcb11f7-028f-408c-ad45-0bebd28ea2db"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """",
-                    ""initialStateCheck"": false
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -181,7 +181,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""5442d87e-e41a-44d5-9d7d-509bfec8ab3b"",
-                    ""path"": ""<Keyboard>/e"",
+                    ""path"": ""<Keyboard>/space"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -196,7 +196,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Dive"",
+                    ""action"": ""Dodge"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
                 },
@@ -244,7 +244,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_Zoom = m_Player.FindAction("Zoom", throwIfNotFound: true);
         m_Player_Rise = m_Player.FindAction("Rise", throwIfNotFound: true);
-        m_Player_Dive = m_Player.FindAction("Dive", throwIfNotFound: true);
+        m_Player_Dodge = m_Player.FindAction("Dodge", throwIfNotFound: true);
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         m_Player_LeftClick = m_Player.FindAction("LeftClick", throwIfNotFound: true);
         m_Player_RightClick = m_Player.FindAction("RightClick", throwIfNotFound: true);
@@ -313,7 +313,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_Zoom;
     private readonly InputAction m_Player_Rise;
-    private readonly InputAction m_Player_Dive;
+    private readonly InputAction m_Player_Dodge;
     private readonly InputAction m_Player_Sprint;
     private readonly InputAction m_Player_LeftClick;
     private readonly InputAction m_Player_RightClick;
@@ -325,7 +325,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         public InputAction @Look => m_Wrapper.m_Player_Look;
         public InputAction @Zoom => m_Wrapper.m_Player_Zoom;
         public InputAction @Rise => m_Wrapper.m_Player_Rise;
-        public InputAction @Dive => m_Wrapper.m_Player_Dive;
+        public InputAction @Dodge => m_Wrapper.m_Player_Dodge;
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
         public InputAction @LeftClick => m_Wrapper.m_Player_LeftClick;
         public InputAction @RightClick => m_Wrapper.m_Player_RightClick;
@@ -350,9 +350,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Rise.started += instance.OnRise;
             @Rise.performed += instance.OnRise;
             @Rise.canceled += instance.OnRise;
-            @Dive.started += instance.OnDive;
-            @Dive.performed += instance.OnDive;
-            @Dive.canceled += instance.OnDive;
+            @Dodge.started += instance.OnDodge;
+            @Dodge.performed += instance.OnDodge;
+            @Dodge.canceled += instance.OnDodge;
             @Sprint.started += instance.OnSprint;
             @Sprint.performed += instance.OnSprint;
             @Sprint.canceled += instance.OnSprint;
@@ -378,9 +378,9 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Rise.started -= instance.OnRise;
             @Rise.performed -= instance.OnRise;
             @Rise.canceled -= instance.OnRise;
-            @Dive.started -= instance.OnDive;
-            @Dive.performed -= instance.OnDive;
-            @Dive.canceled -= instance.OnDive;
+            @Dodge.started -= instance.OnDodge;
+            @Dodge.performed -= instance.OnDodge;
+            @Dodge.canceled -= instance.OnDodge;
             @Sprint.started -= instance.OnSprint;
             @Sprint.performed -= instance.OnSprint;
             @Sprint.canceled -= instance.OnSprint;
@@ -413,7 +413,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         void OnLook(InputAction.CallbackContext context);
         void OnZoom(InputAction.CallbackContext context);
         void OnRise(InputAction.CallbackContext context);
-        void OnDive(InputAction.CallbackContext context);
+        void OnDodge(InputAction.CallbackContext context);
         void OnSprint(InputAction.CallbackContext context);
         void OnLeftClick(InputAction.CallbackContext context);
         void OnRightClick(InputAction.CallbackContext context);

@@ -13,7 +13,7 @@ public class InputManager : MonoBehaviour
         input.Player.Look.performed += OnLookInput;
         input.Player.Zoom.performed += OnZoomInput;
         input.Player.Rise.performed += OnRiseInput;
-        input.Player.Dive.performed += OnDiveInput;
+        input.Player.Dodge.started += OnDodgeInput;
         input.Player.Sprint.performed += OnSprintInput;
         input.Player.LeftClick.performed += OnLeftClickInput;
         input.Player.RightClick.performed += OnRightClickInput;
@@ -49,10 +49,10 @@ public class InputManager : MonoBehaviour
         //Debug.Log(context.ReadValueAsButton());
         InputCache.riseInput = context.ReadValueAsButton();
     }
-    public void OnDiveInput(InputAction.CallbackContext context)
+    public void OnDodgeInput(InputAction.CallbackContext context)
     {
-        //Debug.Log(context.ReadValueAsButton());
-        InputCache.diveInput = context.ReadValueAsButton();
+        // Debug.Log(context.ReadValueAsButton());
+        InputCache.dodgeInput = context.ReadValueAsButton();
     }
     public void OnSprintInput(InputAction.CallbackContext context)
     {
@@ -76,7 +76,7 @@ public class InputCache
     public Vector2 lookInput;
     public float zoomInput;
     public bool riseInput;
-    public bool diveInput;
+    public bool dodgeInput;
     public bool sprintInput;
     public bool leftClickInput;
     public bool rightClickInput;
