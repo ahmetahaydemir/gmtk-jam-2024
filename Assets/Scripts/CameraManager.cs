@@ -40,8 +40,10 @@ public class CameraManager : MonoBehaviour
         _currentFollowPosition = PlayerTransform.position;
     }
     //
-    public void UpdateCameraAction(InputCache inputCache, float waterBaseLevel)
+    public void UpdateCameraAction(InputCache inputCache, float waterBaseLevel, float totalMass)
     {
+        distanceMax = 5f + totalMass * 0.175f;
+
         // Process Rotation - Direction
         if (VerticalSway)
         {
@@ -94,6 +96,11 @@ public class CameraManager : MonoBehaviour
         {
             targetPosition += (_currentFollowPosition - targetPosition) * (0.1f + ((targetPosition.y - waterBaseLevel) / (targetPosition.y - _currentFollowPosition.y)));
         }
+        // Dip Below Surface
+        // if (targetPosition.y > 1)
+        // {
+        //     targetPosition += (_currentFollowPosition - targetPosition) * (0.1f + ((targetPosition.y) / (targetPosition.y - _currentFollowPosition.y)));
+        // }
 
         // Apply position
         CameraTransform.position = targetPosition;

@@ -10546,10 +10546,12 @@ MonoBehaviour:
   mesh: {fileID: 1484603358147851505}
   animator: {fileID: 1847091644109678953}
   mass: 0.235
+  sizeRandMult: 0
   capsuleCollider: {fileID: 272965121058733641}
   deathVFX: {fileID: 5536793410203466723}
   audioSource: {fileID: 4398812210786723140}
   dead: 0
+  enemyBehaviour: 0
 --- !u!82 &4398812210786723140
 AudioSource:
   m_ObjectHideFlags: 0
@@ -10741,7 +10743,7 @@ LODGroup:
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 9147527320466587818}
-  - screenRelativeHeight: 0.05
+  - screenRelativeHeight: 0.01
     fadeTransitionWidth: 0
     renderers:
     - renderer: {fileID: 1138469203845217683}

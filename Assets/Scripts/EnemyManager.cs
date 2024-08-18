@@ -1,11 +1,10 @@
 using UnityEngine;
 using DG.Tweening;
+using System;
 public class EnemyManager : MonoBehaviour
 {
-    public GameObject enemySmallPrefab;
-    public GameObject enemyMediumPrefab;
-    public GameObject enemyLargePrefab;
-    public GameObject enemyBigPrefab;
+    public int initialSpawnCount;
+    public EnemySpawnProb[] enemySpawnProbs;
     public EnemyData[] enemies;
     //
     private float targetDistanceCache;
@@ -16,7 +15,7 @@ public class EnemyManager : MonoBehaviour
         PlayerManager.EnemyHit += KillEnemy;
     }
     //
-    public void UpdateEnemyAction(Vector3 playerLocation)
+    public void UpdateEnemyAction(Vector3 playerLocation, float waterBaseLevel)
     {
         for (int i = 0; i < enemies.Length; i++)
         {
@@ -30,44 +29,59 @@ public class EnemyManager : MonoBehaviour
                 // }
                 if (!enemies[i].dead)
                 {
-                    enemies[i].agent.SetDestination(playerLocation);
+                    switch (enemies[i].enemyBehaviour)
+                    {
+                        case EnemyBehaviour.Neutral:
+                            Vector3 neutralPos = (enemies[i].transform.position - playerLocation).normalized * 3f;
+                            neutralPos.y = Mathf.Clamp(neutralPos.y, waterBaseLevel, waterBaseLevel * (0.35f + enemies[i].sizeRandMult * 0.3f));
+                            enemies[i].agent.SetDestination(neutralPos);
+                            break;
+                        case EnemyBehaviour.Hostile:
+                            if (enemies[i].mass + 2f > totalMass)
+                            {
+                                enemies[i].agent.SetDestination(playerLocation);
+                            }
+                            else
+                            {
+                                Vector3 escapePos = (enemies[i].transform.position - playerLocation).normalized * 10f;
+                                escapePos.y = Mathf.Clamp(escapePos.y, waterBaseLevel, waterBaseLevel * (0.35f + enemies[i].sizeRandMult * 0.3f));
+                                enemies[i].agent.SetDestination(escapePos);
+                            }
+                            break;
+                    }
                 }
             }
         }
     }
-    public void SpawnEnemyObject(Vector3 playerLocation)
+    public void SpawnEnemyObject(Vector3 playerLocation, EnemyBehaviour behaviour)
     {
         for (int i = 0; i < enemies.Length; i++)
         {
             if (enemies[i] == null)
             {
-                Vector3 spawnPosCache = playerLocation + Random.Range(-5, 5) * Vector3.right
-                    + Random.Range(-5, 5) * Vector3.forward;
+                Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-5, 5) * Vector3.right
+                    + UnityEngine.Random.Range(-5, 5) * Vector3.forward;
 
-                GameObject goCache = null;
-                int rand = Mathf.RoundToInt(Random.Range(0f, 100f));
-                if (rand < 59)
+                GameObject goCache = enemySpawnProbs[0].spawnPrefab;
+                int rand = Mathf.RoundToInt(UnityEngine.Random.Range(0f, 100f));
+                for (int j = 0; j < enemySpawnProbs.Length; j++)
                 {
-                    goCache = Instantiate(enemySmallPrefab, spawnPosCache, Quaternion.identity);
+                    if (rand <= enemySpawnProbs[j].spawnChance)
+                    {
+                        goCache = Instantiate(enemySpawnProbs[j].spawnPrefab, spawnPosCache, Quaternion.identity);
+                        break;
+                    }
                 }
-                else if (rand < 69)
-                {
-                    goCache = Instantiate(enemyLargePrefab, spawnPosCache, Quaternion.identity);
-                }
-                else if (rand == 69)
-                {
-                    goCache = Instantiate(enemyBigPrefab, spawnPosCache, Quaternion.identity);
-                }
-                else if (rand >= 70)
-                {
-                    goCache = Instantiate(enemyMediumPrefab, spawnPosCache, Quaternion.identity);
-                }
-
                 // GameObject goCache = Instantiate(enemyPrefab, spawnPosCache, Quaternion.identity);
 
                 enemies[i] = goCache.GetComponent<EnemyData>();
                 enemies[i].gameObject.name = "Enemy-" + i;
-                enemies[i].mesh.localScale = Random.Range(0.8f, 1.2f) * Vector3.one;
+                enemies[i].enemyBehaviour = behaviour;
+                float sizeRand = UnityEngine.Random.Range(0.75f, 1.25f);
+                enemies[i].mesh.localScale = sizeRand * Vector3.one;
+                enemies[i].mass *= sizeRand;
+                enemies[i].sizeRandMult = sizeRand;
+                enemies[i].audioSource.volume = 0.3f;
                 Debug.Log("Spawn Enemy Index-" + i);
                 return;
             }
@@ -100,4 +114,10 @@ public class EnemyManager : MonoBehaviour
             enemies[index] = null;
         }
     }
+}
+[Serializable]
+public class EnemySpawnProb
+{
+    public GameObject spawnPrefab;
+    [Range(0, 100)] public float spawnChance;
 }

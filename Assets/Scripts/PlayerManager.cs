@@ -50,59 +50,14 @@ public class PlayerManager : MonoBehaviour
         //
         _finalPosVector = Vector3.zero;
         //
-        if (inputCache.sprintInput && playerTransform.position.y < 0)
-        {
-            _finalPosVector += sprintSpeed * _moveInputVector;
-        }
-        else
-        {
-            _finalPosVector += movementSpeed * _moveInputVector;
-        }
+        InputMove(inputCache);
+        GravityMove(waterBaseLevel);
         //
-        if (inputCache.riseInput)
-        {
-            if (playerTransform.position.y < -0.1)
-            {
-                _finalPosVector += verticalSpeed * Vector3.up;
-            }
-            else if (playerTransform.position.y > -0.2 && playerTransform.position.y < 0)
-            {
-                _additivePosVector += (Vector3.up + _moveInputVector) * verticalSpeed;
-            }
-        }
-        // Gravity
-        if (playerTransform.position.y > 0f)
-        {
-            if (_finalPosVector.y > 0)
-            {
-                _finalPosVector += 4f * Vector3.down;
-            }
-            else
-            {
-                _finalPosVector += 8f * Vector3.down;
-            }
-        }
-        else if (playerTransform.position.y < -5f)
-        {
-            _finalPosVector += 0.5f * Vector3.down;
-        }
-        else
-        {
-            _finalPosVector += 0.5f * Vector3.down;
-        }
-        //
-        if (inputCache.dodgeInput)
-        {
-            inputCache.dodgeInput = false;
-            _additivePosVector += -playerTransform.right * 8f;
-        }
-        //
+        RiseAction(inputCache);
+        DodgeAction(inputCache);
         AttackAction(inputCache);
         //
-        if (playerTransform.position.y < waterBaseLevel)
-        {
-            _additivePosVector += (moveInputVector + Vector3.up).normalized * (waterBaseLevel - playerTransform.position.y);
-        }
+        BoundaryMove(waterBaseLevel);
         //
         playerTransform.position += Time.deltaTime * (_finalPosVector + _additivePosVector);
         playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, playerCamera.rotation, rotationSpeed * Time.deltaTime);
@@ -112,6 +67,71 @@ public class PlayerManager : MonoBehaviour
         Debug.DrawLine(playerTransform.position, playerTransform.position + _moveInputVector * 2.5f, Color.red);
     }
     //
+    public void InputMove(InputCache inputCache)
+    {
+        if (inputCache.sprintInput)
+        {
+            _finalPosVector += sprintSpeed * _moveInputVector;
+        }
+        else
+        {
+            _finalPosVector += movementSpeed * _moveInputVector;
+        }
+    }
+    public void GravityMove(float waterBaseLevel)
+    {
+        if (playerTransform.position.y > 0f)
+        {
+            _finalPosVector += 8f * Vector3.down;
+        }
+        else if (playerTransform.position.y < waterBaseLevel * 0.95f)
+        {
+            _finalPosVector += 0.1f * Vector3.down;
+        }
+        else if (playerTransform.position.y < waterBaseLevel * 0.75f)
+        {
+            _finalPosVector += 0.2f * Vector3.down;
+        }
+        else if (playerTransform.position.y < waterBaseLevel * 0.45f)
+        {
+            _finalPosVector += 0.3f * Vector3.down;
+        }
+        else
+        {
+            _finalPosVector += 0.4f * Vector3.down;
+        }
+    }
+    public void BoundaryMove(float waterBaseLevel)
+    {
+        // Above Ground
+        if (playerTransform.position.y < waterBaseLevel)
+        {
+            _additivePosVector += (_moveInputVector + Vector3.up * 2f).normalized * (waterBaseLevel - playerTransform.position.y);
+        }
+        // Below Surface
+        if (playerTransform.position.y > -0.4)
+        {
+            _additivePosVector += (_moveInputVector + Vector3.down * 2f).normalized * (0.75f + playerTransform.position.y);
+        }
+    }
+    public void RiseAction(InputCache inputCache)
+    {
+        if (inputCache.riseInput)
+        {
+            if (playerTransform.position.y < -0.51f)
+            {
+                _finalPosVector += verticalSpeed * Vector3.up;
+            }
+        }
+    }
+    public void DodgeAction(InputCache inputCache)
+    {
+        if (inputCache.dodgeInput)
+        {
+            inputCache.dodgeInput = false;
+            _additivePosVector += -playerTransform.right * 8f;
+        }
+    }
     public void AttackAction(InputCache inputCache)
     {
         if (inputCache.leftClickInput && !attackCharging && !attackActionToken)
