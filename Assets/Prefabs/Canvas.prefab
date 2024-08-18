@@ -215,7 +215,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 43.2 kg
+  m_text: 3.2 kg
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 394575da266a4b4429bc0825c09c76f8, type: 2}
   m_sharedMaterial: {fileID: 3898328075123112966, guid: 394575da266a4b4429bc0825c09c76f8,
@@ -633,7 +633,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 0.00012207031, y: 64}
+  m_AnchoredPosition: {x: 0, y: 64}
   m_SizeDelta: {x: -719.99963, y: 150}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!1 &7110318393548178423
@@ -670,8 +670,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -589.1556, y: 0}
-  m_SizeDelta: {x: -1174.3123, y: -52}
+  m_AnchoredPosition: {x: -893.4997, y: 0.000015258789}
+  m_SizeDelta: {x: -1783.0005, y: -51.999966}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &4768982985282663755
 CanvasRenderer:
@@ -710,7 +710,7 @@ MonoBehaviour:
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 2
+  m_PixelsPerUnitMultiplier: 2.1
 --- !u!1 &7826426711946339598
 GameObject:
   m_ObjectHideFlags: 0

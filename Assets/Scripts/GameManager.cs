@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     {
         timer = 0f;
         cameraManager.Initialize(playerManager.playerTransform, playerManager.playerCamera);
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
     //
     public void Update()
@@ -22,9 +24,9 @@ public class GameManager : MonoBehaviour
         timer += Time.deltaTime;
         //
         waterManager.UpdateWaterProgress(timer);
-        playerManager.UpdatePlayerAction(inputManager.InputCache);
+        playerManager.UpdatePlayerAction(inputManager.InputCache, waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass());
         enemyManager.UpdateEnemyAction(playerManager.playerTransform.position);
-        canvasManager.UpdateInterface(waterManager.waterBase.transform.position.y);
+        canvasManager.UpdateInterface(waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass());
         //
         if (Keyboard.current.tKey.wasPressedThisFrame || Keyboard.current.yKey.wasPressedThisFrame)
         {
@@ -34,6 +36,6 @@ public class GameManager : MonoBehaviour
     //
     public void LateUpdate()
     {
-        cameraManager.UpdateCameraAction(inputManager.InputCache);
+        cameraManager.UpdateCameraAction(inputManager.InputCache, waterManager.waterBase.transform.position.y);
     }
 }

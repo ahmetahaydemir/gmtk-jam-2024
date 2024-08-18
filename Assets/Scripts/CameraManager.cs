@@ -40,7 +40,7 @@ public class CameraManager : MonoBehaviour
         _currentFollowPosition = PlayerTransform.position;
     }
     //
-    public void UpdateCameraAction(InputCache inputCache)
+    public void UpdateCameraAction(InputCache inputCache, float waterBaseLevel)
     {
         // Process Rotation - Direction
         if (VerticalSway)
@@ -88,6 +88,12 @@ public class CameraManager : MonoBehaviour
         // Handle framing
         targetPosition += CameraTransform.right * frameOffset.x;
         targetPosition += CameraTransform.up * frameOffset.y;
+
+        // Raise Above Ground
+        if (targetPosition.y < waterBaseLevel)
+        {
+            targetPosition += (_currentFollowPosition - targetPosition) * (0.1f + ((targetPosition.y - waterBaseLevel) / (targetPosition.y - _currentFollowPosition.y)));
+        }
 
         // Apply position
         CameraTransform.position = targetPosition;

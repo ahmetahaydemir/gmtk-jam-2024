@@ -12,7 +12,7 @@ public class WaterManager : MonoBehaviour
     public void UpdateWaterProgress(float time)
     {
         scaleCache = waterContainer.localScale;
-        scaleCache.y = 1f + time * 0.1f;
+        scaleCache.y = 1f + time * 0.05f;
         waterContainer.localScale = scaleCache;
     }
 }

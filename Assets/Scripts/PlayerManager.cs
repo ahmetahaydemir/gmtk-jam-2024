@@ -1,15 +1,21 @@
-using StylizedWater2;
+using System;
+using DG.Tweening;
 using UnityEngine;
 public class PlayerManager : MonoBehaviour
 {
     public Transform playerTransform;
-    public WaterObject waterObject;
     public float movementSpeed = 2f;
     public float sprintSpeed = 2f;
     public float verticalSpeed = 2f;
     public float rotationSpeed = 2f;
     public float additiveFadeSpeed = 2f;
     public Transform playerCamera;
+    public Transform playerHead;
+    public LayerMask enemyLayer;
+    public AudioSource attackChargeSFX;
+    public AudioSource attackActionSFX;
+    //
+    public static event Action<int> EnemyHit;
     //
     private Vector3 inputRawDirection;
     private Vector3 _moveInputVector;
@@ -20,9 +26,12 @@ public class PlayerManager : MonoBehaviour
     private bool attackCharging;
     private float attackActionTimer;
     private bool attackActionToken;
+    private RaycastHit[] attackActionHit;
     //
-    public void UpdatePlayerAction(InputCache inputCache)
+    public void UpdatePlayerAction(InputCache inputCache, float waterBaseLevel, float totalMass)
     {
+        playerTransform.localScale = Vector3.one * (0.5f + totalMass * 0.1f);
+
         // Input Control
         inputRawDirection.x = inputCache.moveInput.x;
         inputRawDirection.z = inputCache.moveInput.y;
@@ -90,6 +99,11 @@ public class PlayerManager : MonoBehaviour
         //
         AttackAction(inputCache);
         //
+        if (playerTransform.position.y < waterBaseLevel)
+        {
+            _additivePosVector += (moveInputVector + Vector3.up).normalized * (waterBaseLevel - playerTransform.position.y);
+        }
+        //
         playerTransform.position += Time.deltaTime * (_finalPosVector + _additivePosVector);
         playerTransform.rotation = Quaternion.Lerp(playerTransform.rotation, playerCamera.rotation, rotationSpeed * Time.deltaTime);
         //
@@ -104,21 +118,26 @@ public class PlayerManager : MonoBehaviour
         {
             attackChargeTimer = 0f;
             attackCharging = true;
+            attackChargeSFX.Play();
         }
         else
         {
             if (attackCharging)
             {
                 attackChargeTimer += Time.deltaTime;
+                playerHead.localScale = Vector3.one * (1f + Mathf.Clamp(attackChargeTimer, 0f, 2f) * 0.25f);
                 //
                 if (!inputCache.leftClickInput)
                 {
+                    attackChargeSFX.Stop();
+                    attackActionSFX.Play();
                     if (attackChargeTimer > 0.25f)
                     {
                         _additivePosVector += playerTransform.forward * Mathf.Lerp(6f, 18f, attackChargeTimer * 0.5f);
                         attackCharging = false;
                         attackActionToken = true;
                         attackActionTimer = 0f;
+                        playerHead.DOScale(Vector3.one, 0.5f).SetEase(Ease.InOutBounce);
                     }
                     else
                     {
@@ -126,12 +145,25 @@ public class PlayerManager : MonoBehaviour
                         attackCharging = false;
                         attackActionToken = true;
                         attackActionTimer = 0f;
+                        playerHead.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutSine);
                     }
                 }
             }
         }
         if (attackActionToken)
         {
+            attackActionHit = Physics.SphereCastAll(playerTransform.position, 0.5f, playerTransform.forward, 0.5f, enemyLayer);
+            if (attackActionHit != null)
+            {
+                if (attackActionHit.Length > 0)
+                {
+                    for (int i = 0; i < attackActionHit.Length; i++)
+                    {
+                        Debug.Log("Hit on " + attackActionHit[i].transform.name);
+                        EnemyHit?.Invoke(int.Parse(attackActionHit[i].transform.name.Split('-')[1]));
+                    }
+                }
+            }
             attackActionTimer += Time.deltaTime;
             if (attackActionTimer > 0.75f)
             {
