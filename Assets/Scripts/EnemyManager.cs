@@ -12,7 +12,7 @@ public class EnemyManager : MonoBehaviour
     //
     public void Awake()
     {
-        PlayerManager.EnemyHit += KillEnemy;
+        PlayerManager.OnEnemyHit += KillEnemy;
     }
     //
     public void UpdateEnemyAction(Vector3 playerLocation, float waterBaseLevel)

@@ -15,7 +15,7 @@ public class PlayerManager : MonoBehaviour
     public AudioSource attackChargeSFX;
     public AudioSource attackActionSFX;
     //
-    public static event Action<int> EnemyHit;
+    public static event Action<int> OnEnemyHit;
     //
     private Vector3 inputRawDirection;
     private Vector3 _moveInputVector;
@@ -27,6 +27,12 @@ public class PlayerManager : MonoBehaviour
     private float attackActionTimer;
     private bool attackActionToken;
     private RaycastHit[] attackActionHit;
+    //
+    void Awake()
+    {
+        // playerHead.DOPunchRotation(Vector3.one * 2f, 3f, 4).SetLoops(-1, LoopType.Restart);
+        playerHead.DOShakeRotation(3f, 10, 4).SetLoops(-1, LoopType.Yoyo);
+    }
     //
     public void UpdatePlayerAction(InputCache inputCache, float waterBaseLevel, float totalMass)
     {
@@ -172,7 +178,7 @@ public class PlayerManager : MonoBehaviour
         }
         if (attackActionToken)
         {
-            attackActionHit = Physics.SphereCastAll(playerTransform.position, 0.5f, playerTransform.forward, 0.5f, enemyLayer);
+            attackActionHit = Physics.SphereCastAll(playerTransform.position, 0.45f * playerTransform.localScale.x, playerTransform.forward, 0.45f, enemyLayer);
             if (attackActionHit != null)
             {
                 if (attackActionHit.Length > 0)
@@ -180,7 +186,7 @@ public class PlayerManager : MonoBehaviour
                     for (int i = 0; i < attackActionHit.Length; i++)
                     {
                         Debug.Log("Hit on " + attackActionHit[i].transform.name);
-                        EnemyHit?.Invoke(int.Parse(attackActionHit[i].transform.name.Split('-')[1]));
+                        OnEnemyHit?.Invoke(int.Parse(attackActionHit[i].transform.name.Split('-')[1]));
                     }
                 }
             }

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 public class CameraManager : MonoBehaviour
 {
@@ -104,5 +105,10 @@ public class CameraManager : MonoBehaviour
 
         // Apply position
         CameraTransform.position = targetPosition;
+    }
+    //
+    public void ShakeCamera()
+    {
+        CameraTransform.DOPunchRotation(Vector3.right * 5f, 0.75f, 6);
     }
 }

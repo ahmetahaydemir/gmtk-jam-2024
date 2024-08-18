@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public class GameManager : MonoBehaviour
@@ -10,13 +11,15 @@ public class GameManager : MonoBehaviour
     public CanvasManager canvasManager;
     //
     private float timer;
+    private bool started;
     //
     public void Start()
     {
+        CanvasManager.OnPlayClick += OnPlayClicked;
         timer = 0f;
         cameraManager.Initialize(playerManager.playerTransform, playerManager.playerCamera);
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        // Cursor.lockState = CursorLockMode.Locked;
+        // Cursor.visible = false;
         for (int i = 0; i < enemyManager.initialSpawnCount; i++)
         {
             enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Neutral);
@@ -25,21 +28,39 @@ public class GameManager : MonoBehaviour
     //
     public void Update()
     {
-        timer += Time.deltaTime;
-        //
-        waterManager.UpdateWaterProgress(timer);
-        playerManager.UpdatePlayerAction(inputManager.InputCache, waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass());
-        enemyManager.UpdateEnemyAction(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
-        canvasManager.UpdateInterface(waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass());
-        //
-        if (Keyboard.current.tKey.wasPressedThisFrame || Keyboard.current.yKey.wasPressedThisFrame)
+        if (started)
         {
-            enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Hostile);
+            timer += Time.deltaTime;
+            //
+            waterManager.UpdateWaterProgress(timer);
+            playerManager.UpdatePlayerAction(inputManager.InputCache, waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass());
+            enemyManager.UpdateEnemyAction(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
+            canvasManager.UpdateInterface(waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass());
+            //
+            if (Keyboard.current.tKey.wasPressedThisFrame || Keyboard.current.yKey.wasPressedThisFrame)
+            {
+                enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Hostile);
+            }
         }
     }
     //
     public void LateUpdate()
     {
-        cameraManager.UpdateCameraAction(inputManager.InputCache, waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass());
+        if (started)
+        {
+            cameraManager.UpdateCameraAction(inputManager.InputCache, waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass());
+        }
+    }
+    //
+    public void OnPlayClicked()
+    {
+        waterManager.DislodgeSnakeRocks();
+        cameraManager.ShakeCamera();
+        //
+        playerManager.playerTransform.DOMoveY(playerManager.playerTransform.position.y + 0.4f, 1f).SetEase(Ease.InOutSine).OnComplete(() =>
+        {
+            started = true;
+            canvasManager.ShowInGameHud();
+        });
     }
 }
