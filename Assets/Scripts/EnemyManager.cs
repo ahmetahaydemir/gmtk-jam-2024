@@ -2,13 +2,22 @@ using UnityEngine;
 using DG.Tweening;
 using System;
 using ProjectDawn.Navigation;
-using Unity.Entities.UniversalDelegates;
 public class EnemyManager : MonoBehaviour
 {
-    public int initialSpawnCount;
+    [Header("Shallow Coast")]
+    public float phaseOneSpawnDepth;
     public EnemySpawnProb[] phaseOneSpawnPool;
+    [Header("Uninvited Current")]
+    public float phaseTwoSpawnDepth;
     public EnemySpawnProb[] phaseTwoSpawnPool;
+    [Header("Change of Scales")]
+    public float phaseThreeSpawnDepth;
     public EnemySpawnProb[] phaseThreeSpawnPool;
+    [Header("Far From Surface")]
+    public float phaseFourSpawnDepth;
+    public EnemySpawnProb[] phaseFourSpawnPool;
+    [Header("Deep End")]
+    public float phaseFiveSpawnDepth;
     public GameObject phaseFiveSpawn;
     //
     [Header("Runtime Pool")]
@@ -53,7 +62,7 @@ public class EnemyManager : MonoBehaviour
                             enemies[i].transform.rotation = Quaternion.Lerp(enemies[i].transform.rotation,
                                 Quaternion.LookRotation((playerLocation - enemies[i].transform.position).normalized, Vector3.up),
                                 4f * 3f * Time.deltaTime);
-                            if (totalMass > enemies[i].mass * 2f) { enemies[i].enemyBehaviour = EnemyBehaviour.Escape; }
+                            if (totalMass > enemies[i].mass * 3f) { enemies[i].enemyBehaviour = EnemyBehaviour.Escape; }
                             //
                             if (targetDistanceMagnitude < 1f)
                             {
@@ -108,18 +117,18 @@ public class EnemyManager : MonoBehaviour
             }
         }
     }
-    public void SpawnEnemyObject(Vector3 playerLocation, EnemyBehaviour behaviour, float waterBaseLevel)
+    public void SpawnEnemyObject(Vector3 playerLocation, float waterBaseLevel)
     {
-        for (int i = 0; i < enemies.Length; i++)
+        for (int i = 0; i < enemies.Length - 1; i++)
         {
             if (enemies[i] == null)
             {
                 Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-8f, 8f) * Vector3.right
                     + UnityEngine.Random.Range(-8f, 8f) * Vector3.forward + UnityEngine.Random.Range(0f, 2f) * Vector3.up;
 
-                GameObject goCache = null;
+                GameObject goCache = phaseOneSpawnPool[0].spawnPrefab;
                 int rand = Mathf.RoundToInt(UnityEngine.Random.Range(0f, 100f));
-                if (waterBaseLevel >= -10f)
+                if (waterBaseLevel >= phaseOneSpawnDepth)
                 {
                     // Phase 1
                     for (int j = 0; j < phaseOneSpawnPool.Length; j++)
@@ -131,7 +140,7 @@ public class EnemyManager : MonoBehaviour
                         }
                     }
                 }
-                else if (waterBaseLevel >= -50f)
+                else if (waterBaseLevel >= phaseTwoSpawnDepth)
                 {
                     // Phase 2
                     for (int j = 0; j < phaseTwoSpawnPool.Length; j++)
@@ -143,7 +152,7 @@ public class EnemyManager : MonoBehaviour
                         }
                     }
                 }
-                else if (waterBaseLevel >= -100f)
+                else if (waterBaseLevel >= phaseThreeSpawnDepth)
                 {
                     // Phase 3
                     for (int j = 0; j < phaseThreeSpawnPool.Length; j++)
@@ -155,6 +164,18 @@ public class EnemyManager : MonoBehaviour
                         }
                     }
                 }
+                else if (waterBaseLevel >= phaseFourSpawnDepth)
+                {
+                    // Phase 4
+                    for (int j = 0; j < phaseFourSpawnPool.Length; j++)
+                    {
+                        if (rand <= phaseFourSpawnPool[j].spawnChance)
+                        {
+                            goCache = Instantiate(phaseFourSpawnPool[j].spawnPrefab, spawnPosCache, Quaternion.identity);
+                            break;
+                        }
+                    }
+                }
                 //
                 enemies[i] = goCache.GetComponent<EnemyData>();
                 enemies[i].gameObject.name = "Enemy-" + i;
@@ -162,7 +183,6 @@ public class EnemyManager : MonoBehaviour
                 {
                     enemies[i].animator.Play("Idle_A");
                 }
-                enemies[i].enemyBehaviour = behaviour;
                 float sizeRand = UnityEngine.Random.Range(0.75f, 1.25f);
                 enemies[i].mesh.localScale = sizeRand * Vector3.one;
                 enemies[i].mass *= sizeRand;
@@ -173,6 +193,28 @@ public class EnemyManager : MonoBehaviour
         }
         //
         Debug.LogWarning("Spawn Enemy Request Warning - No Remaining Slot");
+    }
+    public void SpawnBossObject(Vector3 playerLocation, float waterBaseLevel)
+    {
+        Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-8f, 8f) * Vector3.right
+                            + UnityEngine.Random.Range(-8f, 8f) * Vector3.forward + UnityEngine.Random.Range(0f, 2f) * Vector3.up;
+
+        GameObject goCache = Instantiate(phaseFiveSpawn, spawnPosCache, Quaternion.identity);
+
+        for (int i = 0; i < enemies.Length; i++)
+        {
+            if (enemies[i] == null)
+            {
+                enemies[i] = goCache.GetComponent<EnemyData>();
+                enemies[i].gameObject.name = "Boss-" + i;
+                if (enemies[i].animator != null)
+                {
+                    enemies[i].animator.Play("Idle_A");
+                }
+                enemies[i].sizeRandMult = 1f;
+                enemies[i].getHitAudioSource.volume = 0.33f;
+            }
+        }
     }
     public void KillEnemy(int index)
     {
@@ -195,7 +237,7 @@ public class EnemyManager : MonoBehaviour
         enemies[index].getHitAudioSource.Play();
         enemies[index].deathVFX.SetActive(true);
         //
-        totalMass += enemies[index].mass * enemies[index].mesh.localScale.x * 0.25f;
+        totalMass += enemies[index].mass * enemies[index].mesh.localScale.x * 0.1f;
     }
     public float GetTotalMass() { return totalMass; }
     public void RemoveEnemyObject(int index)

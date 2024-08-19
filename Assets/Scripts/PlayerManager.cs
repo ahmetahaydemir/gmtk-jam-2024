@@ -35,7 +35,7 @@ public class PlayerManager : MonoBehaviour
         playerHead.DOShakeRotation(3.5f, 8, 3).SetLoops(-1, LoopType.Yoyo);
     }
     //
-    public void UpdatePlayerAction(InputCache inputCache, float waterBaseLevel, float totalMass)
+    public void UpdatePlayerAction(InputCache inputCache, float waterBaseLevel, float totalMass, int phase)
     {
         playerTransform.localScale = Vector3.one * (0.5f + totalMass * 0.05f);
 
@@ -58,7 +58,7 @@ public class PlayerManager : MonoBehaviour
         _finalPosVector = Vector3.zero;
         //
         InputMove(inputCache);
-        GravityMove(waterBaseLevel);
+        GravityMove(waterBaseLevel, phase);
         //
         RiseAction(inputCache);
         DodgeAction(inputCache);
@@ -105,7 +105,7 @@ public class PlayerManager : MonoBehaviour
             _finalPosVector += movementSpeed * _moveInputVector;
         }
     }
-    public void GravityMove(float waterBaseLevel)
+    public void GravityMove(float waterBaseLevel, int phase)
     {
         if (playerTransform.position.y > 0f)
         {
@@ -113,15 +113,36 @@ public class PlayerManager : MonoBehaviour
         }
         else if (playerTransform.position.y < waterBaseLevel * 0.95f)
         {
-            _finalPosVector += 0.1f * Vector3.down;
+            if (phase > 2)
+            {
+                _finalPosVector += 0.4f * Vector3.down;
+            }
+            else
+            {
+                _finalPosVector += 0.1f * Vector3.down;
+            }
         }
         else if (playerTransform.position.y < waterBaseLevel * 0.75f)
         {
-            _finalPosVector += 0.2f * Vector3.down;
+            if (phase > 2)
+            {
+                _finalPosVector += 0.6f * Vector3.down;
+            }
+            else
+            {
+                _finalPosVector += 0.2f * Vector3.down;
+            }
         }
         else if (playerTransform.position.y < waterBaseLevel * 0.45f)
         {
-            _finalPosVector += 0.3f * Vector3.down;
+            if (phase > 2)
+            {
+                _finalPosVector += 0.8f * Vector3.down;
+            }
+            else
+            {
+                _finalPosVector += 0.3f * Vector3.down;
+            }
         }
         else
         {
@@ -139,6 +160,11 @@ public class PlayerManager : MonoBehaviour
         if (playerTransform.position.y > -0.4)
         {
             _additivePosVector += (_moveInputVector + Vector3.down * 2f).normalized * (0.75f + playerTransform.position.y);
+        }
+        // Outside Circle
+        if (playerTransform.position.x * playerTransform.position.x + playerTransform.position.z * playerTransform.position.z > 16000f)
+        {
+            _additivePosVector += (_moveInputVector - playerTransform.position * 5f).normalized * 4f;
         }
     }
     public void RiseAction(InputCache inputCache)

@@ -15260,7 +15260,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5538858931799109823}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: 0.50564337, z: -0, w: 0.86274254}
+  m_LocalRotation: {x: 0, y: 0.50564235, z: 0, w: 0.86274326}
   m_LocalPosition: {x: -5.974, y: -4.75, z: -0.751}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
@@ -15289,9 +15289,9 @@ CapsuleCollider:
   m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.15990335
-  m_Height: 1.0201241
+  m_Height: 0.87
   m_Direction: 2
-  m_Center: {x: 0, y: 0.25155073, z: -0.030186117}
+  m_Center: {x: 0, y: 0.06, z: -0.23}
 --- !u!114 &7505195414067140068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15305,10 +15305,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MotionType: 3
-  Speed: 2.4
-  Acceleration: 7
-  AngularSpeed: 150
-  StoppingDistance: 0.6
+  Speed: 3.25
+  Acceleration: 8.5
+  AngularSpeed: 240
+  StoppingDistance: 0.25
   AutoBreaking: 1
   m_Layers: 1
 --- !u!114 &792477494631155109
@@ -15323,7 +15323,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fed5c6dd07c7d6e4f857b420fa8f559a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 0.55
+  Radius: 0.4
   Height: 0.4
 --- !u!114 &8210460532984341109
 MonoBehaviour:
@@ -15337,7 +15337,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0344116cd75eaaf488b894904a1649d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 2.5
+  Radius: 2.25
   Angle: 230
   MaxAngle: 300
   Mode: 3
@@ -15359,7 +15359,7 @@ MonoBehaviour:
   agent: {fileID: 7505195414067140068}
   mesh: {fileID: 3938711677829691167}
   animator: {fileID: 3938711677820623101}
-  mass: 2.25
+  mass: 0.6
   sizeRandMult: 0
   capsuleCollider: {fileID: 4509976612708982768}
   deathVFX: {fileID: 4857250250721984117}
@@ -15579,11 +15579,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: 9da6c360b237b1d4687086f5b505ba0e, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.323
+      value: -0.26
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: 9da6c360b237b1d4687086f5b505ba0e, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -0.007
+      value: -0.15
       objectReference: {fileID: 0}
     - target: {fileID: 400002, guid: 9da6c360b237b1d4687086f5b505ba0e, type: 3}
       propertyPath: m_LocalRotation.w

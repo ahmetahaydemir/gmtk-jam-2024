@@ -15,6 +15,7 @@ public class GameManager : MonoBehaviour
     private bool started;
     private bool over;
     private int phase;
+    private float interval;
     //
     public static GameManager Instance;
     void Awake()
@@ -29,10 +30,6 @@ public class GameManager : MonoBehaviour
         timer = 0f;
         cameraManager.Initialize(playerManager.playerTransform, playerManager.playerCamera);
         transitionManager.TransitionOut();
-        for (int i = 0; i < enemyManager.initialSpawnCount; i++)
-        {
-            enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Neutral, waterManager.waterBase.transform.position.y);
-        }
     }
     //
     public void Update()
@@ -41,14 +38,74 @@ public class GameManager : MonoBehaviour
         {
             timer += Time.deltaTime;
             //
-            waterManager.UpdateWaterProgress(timer);
-            playerManager.UpdatePlayerAction(inputManager.InputCache, waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass());
+            waterManager.UpdateWaterProgress(timer, phase);
+            playerManager.UpdatePlayerAction(inputManager.InputCache, waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass(), phase);
             enemyManager.UpdateEnemyAction(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
             canvasManager.UpdateInterface(waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass());
             //
             if (Keyboard.current.tKey.wasPressedThisFrame || Keyboard.current.yKey.wasPressedThisFrame)
             {
-                enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Chase, waterManager.waterBase.transform.position.y);
+                enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
+            }
+            //
+            switch (phase)
+            {
+                case 0:
+                    if (timer > interval)
+                    {
+                        interval += 0.7f;
+                        enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
+                    }
+                    if (enemyManager.phaseOneSpawnDepth > waterManager.waterBase.transform.position.y)
+                    {
+                        phase = 1;
+                        waterManager.WaterDeepVisual(phase);
+                        canvasManager.ShowPhasePopup(phase);
+                    }
+                    break;
+                case 1:
+                    if (timer > interval)
+                    {
+                        interval += 0.85f;
+                        enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
+                    }
+                    if (enemyManager.phaseTwoSpawnDepth > waterManager.waterBase.transform.position.y)
+                    {
+                        phase = 2;
+                        waterManager.WaterDeepVisual(phase);
+                        canvasManager.ShowPhasePopup(phase);
+                    }
+                    break;
+                case 2:
+                    if (timer > interval)
+                    {
+                        interval += 1f;
+                        enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
+                    }
+                    if (enemyManager.phaseThreeSpawnDepth > waterManager.waterBase.transform.position.y)
+                    {
+                        phase = 3;
+                        waterManager.WaterDeepVisual(phase);
+                        canvasManager.ShowPhasePopup(phase);
+                    }
+                    break;
+                case 3:
+                    if (enemyManager.phaseFourSpawnDepth > waterManager.waterBase.transform.position.y)
+                    {
+                        phase = 4;
+                        waterManager.WaterDeepVisual(phase);
+                        canvasManager.ShowPhasePopup(phase);
+                        SpawnBoss();
+                    }
+                    else
+                    {
+                        if (timer > interval)
+                        {
+                            interval += 1.5f;
+                            enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
+                        }
+                    }
+                    break;
             }
         }
         //
@@ -98,6 +155,17 @@ public class GameManager : MonoBehaviour
             canvasManager.ShowInGameHud();
             phase = 0;
             canvasManager.ShowPhasePopup(phase);
+        });
+    }
+    public void SpawnBoss()
+    {
+        DOVirtual.Float(0f, 1f, 3f, (float x) =>
+        {
+
+        }).OnComplete(() =>
+        {
+            cameraManager.ShakeCamera();
+            enemyManager.SpawnBossObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
         });
     }
 }

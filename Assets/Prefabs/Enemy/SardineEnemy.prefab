@@ -10492,10 +10492,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MotionType: 3
-  Speed: 3.5
+  Speed: 3.25
   Acceleration: 8.5
-  AngularSpeed: 180
-  StoppingDistance: 0.2
+  AngularSpeed: 240
+  StoppingDistance: 0.25
   AutoBreaking: 1
   m_Layers: 1
 --- !u!114 &9096706253432447772
@@ -10510,8 +10510,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fed5c6dd07c7d6e4f857b420fa8f559a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 0.35
-  Height: 0.35
+  Radius: 0.4
+  Height: 0.4
 --- !u!114 &4711149168119884321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10524,7 +10524,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0344116cd75eaaf488b894904a1649d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Radius: 2
+  Radius: 2.25
   Angle: 230
   MaxAngle: 300
   Mode: 3
@@ -10546,8 +10546,8 @@ MonoBehaviour:
   agent: {fileID: 8936296692091414375}
   mesh: {fileID: 1484603358147851505}
   animator: {fileID: 1847091644109678953}
-  mass: 0.45
-  sizeRandMult: 0
+  mass: 0.42431045
+  sizeRandMult: 1.0607761
   capsuleCollider: {fileID: 272965121058733641}
   deathVFX: {fileID: 5536793410203466723}
   getHitAudioSource: {fileID: 4398812210786723140}
@@ -10568,7 +10568,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: f8670ba41d93b8d47922df02b6b8166f, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 1
+  m_Volume: 0.33
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -10807,7 +10807,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1.0607761, y: 1.0607761, z: 1.0607761}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2124929348800873883}

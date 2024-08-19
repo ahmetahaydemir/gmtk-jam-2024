@@ -83,7 +83,7 @@ public class CanvasManager : MonoBehaviour
             case 1:
                 phaseTitleText.text = "Uninvited Current";
                 phaseDescText.text = "Everyone wants a piece of it";
-                phaseDepthText.text = "Depth Level <= 25";
+                phaseDepthText.text = "Depth Level <= 30";
                 break;
             case 2:
                 phaseTitleText.text = "Change of Scales";
@@ -92,7 +92,7 @@ public class CanvasManager : MonoBehaviour
                 break;
             case 3:
                 phaseTitleText.text = "Far From Surface";
-                phaseDescText.text = "Where light abandons us";
+                phaseDescText.text = "Where the light abandons us";
                 phaseDepthText.text = "Depth Level <= 100";
                 break;
             case 4:

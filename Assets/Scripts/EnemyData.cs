@@ -21,5 +21,6 @@ public enum EnemyBehaviour
     Neutral,
     Escape,
     Chase,
-    Attack
+    Attack,
+    Boss
 }

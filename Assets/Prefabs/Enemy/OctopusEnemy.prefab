@@ -130,7 +130,7 @@ MonoBehaviour:
   agent: {fileID: 6152555127226741560}
   mesh: {fileID: 5808206516616805867}
   animator: {fileID: 2473523735867642971}
-  mass: 2.25
+  mass: 1
   sizeRandMult: 0
   capsuleCollider: {fileID: 5500065403324897747}
   deathVFX: {fileID: 7131801218191486236}

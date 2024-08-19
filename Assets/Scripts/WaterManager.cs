@@ -1,9 +1,13 @@
 using DG.Tweening;
 using StylizedWater2;
+using StylizedWater2.UnderwaterRendering;
 using UnityEngine;
 public class WaterManager : MonoBehaviour
 {
     public WaterObject water;
+    public UnderwaterRenderer underwater;
+    public Light sun;
+    public AudioSource musicSource;
     public Transform waterContainer;
     public Transform waterBase;
     public Transform waterCover;
@@ -12,11 +16,27 @@ public class WaterManager : MonoBehaviour
     //
     private Vector3 scaleCache;
     //
-    public void UpdateWaterProgress(float time)
+    public void UpdateWaterProgress(float time, int phase)
     {
         scaleCache = waterContainer.localScale;
-        scaleCache.y = 1f + time * 0.05f;
+        scaleCache.y = 1f + time * 0.375f;
         waterContainer.localScale = scaleCache;
+    }
+    //
+    public void WaterDeepVisual(int phase)
+    {
+        DOVirtual.Float(1.5f - (phase * 0.13f), 1.5f - ((phase + 1f) * 0.13f), 6f, (float x) =>
+        {
+            sun.intensity = x;
+        });
+        DOVirtual.Float(1f - (phase * 0.065f), 1f - ((phase + 1f) * 0.065f), 6f, (float y) =>
+        {
+            underwater.fogBrightness = y;
+        });
+        DOVirtual.Float(1f - (phase * 0.02f), 1f - ((phase + 1f) * 0.02f), 6f, (float z) =>
+        {
+            musicSource.pitch = z;
+        });
     }
     //
     public void DislodgeSnakeRocks()

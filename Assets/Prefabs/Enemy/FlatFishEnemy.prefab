@@ -10258,13 +10258,13 @@ MonoBehaviour:
   agent: {fileID: 2702174226502871399}
   mesh: {fileID: 6379460522082627583}
   animator: {fileID: 0}
-  mass: 2.1
+  mass: 6
   sizeRandMult: 0
   capsuleCollider: {fileID: 5699832081957219883}
   deathVFX: {fileID: 3275842438075239626}
   getHitAudioSource: {fileID: 3378051894992038028}
   dead: 0
-  enemyBehaviour: 0
+  enemyBehaviour: 2
   attackTimer: 0
   attackToken: 0
   attackAudioSource: {fileID: 8275630349276695270}
