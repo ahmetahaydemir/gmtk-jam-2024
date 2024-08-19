@@ -14,6 +14,7 @@ public class GameManager : MonoBehaviour
     private float timer;
     private bool started;
     private bool over;
+    private int phase;
     //
     public static GameManager Instance;
     void Awake()
@@ -30,7 +31,7 @@ public class GameManager : MonoBehaviour
         transitionManager.TransitionOut();
         for (int i = 0; i < enemyManager.initialSpawnCount; i++)
         {
-            enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Neutral);
+            enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Neutral, waterManager.waterBase.transform.position.y);
         }
     }
     //
@@ -47,8 +48,12 @@ public class GameManager : MonoBehaviour
             //
             if (Keyboard.current.tKey.wasPressedThisFrame || Keyboard.current.yKey.wasPressedThisFrame)
             {
-                enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Chase);
+                enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Chase, waterManager.waterBase.transform.position.y);
             }
+        }
+        //
+        if (started)
+        {
             if (Keyboard.current.escapeKey.wasPressedThisFrame)
             {
                 transitionManager.TransitionIn();
@@ -84,12 +89,15 @@ public class GameManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         waterManager.DislodgeSnakeRocks();
-        cameraManager.ShakeCamera();
+        cameraManager.ShakeCamera(false);
+        cameraManager.CameraTransform.DORotate(Vector3.up * 145f, 0.75f).SetEase(Ease.InOutSine);
         //
         playerManager.playerTransform.DOMoveY(playerManager.playerTransform.position.y + 0.4f, 1f).SetEase(Ease.InOutSine).OnComplete(() =>
         {
             started = true;
             canvasManager.ShowInGameHud();
+            phase = 0;
+            canvasManager.ShowPhasePopup(phase);
         });
     }
 }

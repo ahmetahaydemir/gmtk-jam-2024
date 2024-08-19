@@ -107,9 +107,16 @@ public class CameraManager : MonoBehaviour
         CameraTransform.position = targetPosition;
     }
     //
-    public void ShakeCamera()
+    public void ShakeCamera(bool rotToken = true)
     {
-        CameraTransform.DOPunchRotation(Vector3.right * 5f, 0.75f, 6);
+        if (rotToken)
+        {
+            CameraTransform.DOPunchRotation(Vector3.right * 5f, 0.75f, 6);
+        }
+        else
+        {
+            CameraTransform.DOPunchPosition(CameraTransform.right * 0.25f, 0.75f, 6);
+        }
     }
     public void DeathReaction(float waterBaseLevel)
     {

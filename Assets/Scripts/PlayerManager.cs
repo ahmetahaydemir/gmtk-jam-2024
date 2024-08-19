@@ -199,7 +199,7 @@ public class PlayerManager : MonoBehaviour
         }
         if (attackActionToken)
         {
-            attackActionHit = Physics.SphereCastAll(playerTransform.position, 0.45f * playerTransform.localScale.x, playerTransform.forward, 0.45f, enemyLayer);
+            attackActionHit = Physics.SphereCastAll(playerTransform.position, 0.5f * playerTransform.localScale.x, playerTransform.forward, 0.4f, enemyLayer);
             if (attackActionHit != null)
             {
                 if (attackActionHit.Length > 0)
