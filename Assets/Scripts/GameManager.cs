@@ -9,17 +9,25 @@ public class GameManager : MonoBehaviour
     public EnemyManager enemyManager;
     public WaterManager waterManager;
     public CanvasManager canvasManager;
+    public TransitionManager transitionManager;
     //
     private float timer;
     private bool started;
+    private bool over;
+    //
+    public static GameManager Instance;
+    void Awake()
+    {
+        Instance = this;
+    }
     //
     public void Start()
     {
-        CanvasManager.OnPlayClick += OnPlayClicked;
+        Cursor.lockState = CursorLockMode.None;
+        Cursor.visible = true;
         timer = 0f;
         cameraManager.Initialize(playerManager.playerTransform, playerManager.playerCamera);
-        // Cursor.lockState = CursorLockMode.Locked;
-        // Cursor.visible = false;
+        transitionManager.TransitionOut();
         for (int i = 0; i < enemyManager.initialSpawnCount; i++)
         {
             enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Neutral);
@@ -28,7 +36,7 @@ public class GameManager : MonoBehaviour
     //
     public void Update()
     {
-        if (started)
+        if (started && !over)
         {
             timer += Time.deltaTime;
             //
@@ -39,7 +47,11 @@ public class GameManager : MonoBehaviour
             //
             if (Keyboard.current.tKey.wasPressedThisFrame || Keyboard.current.yKey.wasPressedThisFrame)
             {
-                enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Hostile);
+                enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, EnemyBehaviour.Chase);
+            }
+            if (Keyboard.current.escapeKey.wasPressedThisFrame)
+            {
+                transitionManager.TransitionIn();
             }
         }
     }
@@ -52,8 +64,25 @@ public class GameManager : MonoBehaviour
         }
     }
     //
+    public void OnEnemyHit(int enemyIndex)
+    {
+        enemyManager.KillEnemy(enemyIndex);
+    }
+    public void OnPlayerHit(EnemyData enemyData, float totalMass)
+    {
+        playerManager.GetHitReaction(enemyData);
+        if (totalMass <= 0.01f)
+        {
+            over = true;
+            cameraManager.DeathReaction(waterManager.waterBase.transform.position.y);
+            playerManager.DeathReaction(waterManager.waterBase.transform.position.y);
+            canvasManager.DeathReaction();
+        }
+    }
     public void OnPlayClicked()
     {
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
         waterManager.DislodgeSnakeRocks();
         cameraManager.ShakeCamera();
         //

@@ -14,8 +14,9 @@ public class PlayerManager : MonoBehaviour
     public LayerMask enemyLayer;
     public AudioSource attackChargeSFX;
     public AudioSource attackActionSFX;
-    //
-    public static event Action<int> OnEnemyHit;
+    public GameObject[] getHitVFXArray;
+    public AudioSource getHitSFX;
+    public GameObject deathVFX;
     //
     private Vector3 inputRawDirection;
     private Vector3 _moveInputVector;
@@ -27,16 +28,16 @@ public class PlayerManager : MonoBehaviour
     private float attackActionTimer;
     private bool attackActionToken;
     private RaycastHit[] attackActionHit;
+    private int getHitIndex;
     //
     void Awake()
     {
-        // playerHead.DOPunchRotation(Vector3.one * 2f, 3f, 4).SetLoops(-1, LoopType.Restart);
-        playerHead.DOShakeRotation(3f, 10, 4).SetLoops(-1, LoopType.Yoyo);
+        playerHead.DOShakeRotation(3.5f, 8, 3).SetLoops(-1, LoopType.Yoyo);
     }
     //
     public void UpdatePlayerAction(InputCache inputCache, float waterBaseLevel, float totalMass)
     {
-        playerTransform.localScale = Vector3.one * (0.5f + totalMass * 0.1f);
+        playerTransform.localScale = Vector3.one * (0.5f + totalMass * 0.05f);
 
         // Input Control
         inputRawDirection.x = inputCache.moveInput.x;
@@ -73,6 +74,26 @@ public class PlayerManager : MonoBehaviour
         Debug.DrawLine(playerTransform.position, playerTransform.position + _moveInputVector * 2.5f, Color.red);
     }
     //
+    public void GetHitReaction(EnemyData enemyData)
+    {
+        getHitVFXArray[getHitIndex].SetActive(false);
+        getHitVFXArray[getHitIndex].SetActive(true);
+        getHitIndex++;
+        getHitIndex %= getHitVFXArray.Length;
+        //
+        getHitSFX.pitch = UnityEngine.Random.Range(0.75f, 1f);
+        getHitSFX.volume = UnityEngine.Random.Range(0.75f, 1f);
+        getHitSFX.Play();
+    }
+    public void DeathReaction(float waterBaseLevel)
+    {
+        deathVFX.SetActive(false);
+        deathVFX.SetActive(true);
+        //
+        playerTransform.DOShakeRotation(3f, 45, 5);
+        playerTransform.DOScale(0.25f, 3f).SetEase(Ease.OutBounce);
+        playerTransform.DOMoveY(waterBaseLevel + 0.06f, Mathf.Abs(playerTransform.position.y - waterBaseLevel) * 0.75f).SetEase(Ease.InOutSine);
+    }
     public void InputMove(InputCache inputCache)
     {
         if (inputCache.sprintInput)
@@ -186,7 +207,7 @@ public class PlayerManager : MonoBehaviour
                     for (int i = 0; i < attackActionHit.Length; i++)
                     {
                         Debug.Log("Hit on " + attackActionHit[i].transform.name);
-                        OnEnemyHit?.Invoke(int.Parse(attackActionHit[i].transform.name.Split('-')[1]));
+                        GameManager.Instance.OnEnemyHit(int.Parse(attackActionHit[i].transform.name.Split('-')[1]));
                     }
                 }
             }

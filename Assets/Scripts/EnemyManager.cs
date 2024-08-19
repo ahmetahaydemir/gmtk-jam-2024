@@ -1,18 +1,20 @@
 using UnityEngine;
 using DG.Tweening;
 using System;
+using ProjectDawn.Navigation;
 public class EnemyManager : MonoBehaviour
 {
     public int initialSpawnCount;
     public EnemySpawnProb[] enemySpawnProbs;
     public EnemyData[] enemies;
     //
-    private float targetDistanceCache;
+    private Vector3 targetDistanceVector;
+    private float targetDistanceMagnitude;
     private float totalMass;
     //
     public void Awake()
     {
-        PlayerManager.OnEnemyHit += KillEnemy;
+        totalMass = 0.1f;
     }
     //
     public void UpdateEnemyAction(Vector3 playerLocation, float waterBaseLevel)
@@ -21,31 +23,79 @@ public class EnemyManager : MonoBehaviour
         {
             if (enemies[i] != null)
             {
-                // targetDistanceCache = (playerLocation - enemies[i].transform.position).sqrMagnitude;
-                // if (targetDistanceCache > 1f)
-                // {
-                //     enemies[i].transform.position += movementSpeed * Time.deltaTime * (playerLocation - enemies[i].transform.position).normalized;
-                //     enemies[i].transform.rotation = Quaternion.Lerp(enemies[i].transform.rotation, Quaternion.LookRotation((playerLocation - enemies[i].transform.position).normalized, Vector3.up), rotationSpeed * 3f * Time.deltaTime);
-                // }
+                targetDistanceVector = playerLocation - enemies[i].transform.position;
+                targetDistanceMagnitude = targetDistanceVector.sqrMagnitude;
+                //
                 if (!enemies[i].dead)
                 {
+                    //
                     switch (enemies[i].enemyBehaviour)
                     {
                         case EnemyBehaviour.Neutral:
-                            Vector3 neutralPos = (enemies[i].transform.position - playerLocation).normalized * 3f;
+                            Vector3 neutralPos = (enemies[i].transform.position - playerLocation).normalized * 6f;
                             neutralPos.y = Mathf.Clamp(neutralPos.y, waterBaseLevel, waterBaseLevel * (0.35f + enemies[i].sizeRandMult * 0.3f));
                             enemies[i].agent.SetDestination(neutralPos);
                             break;
-                        case EnemyBehaviour.Hostile:
-                            if (enemies[i].mass + 2f > totalMass)
+                        case EnemyBehaviour.Escape:
+                            if (totalMass < enemies[i].mass * 0.75f) { enemies[i].enemyBehaviour = EnemyBehaviour.Chase; }
+                            //
+                            Vector3 escapePos = (enemies[i].transform.position - playerLocation).normalized * 6f;
+                            escapePos.y = Mathf.Clamp(escapePos.y, waterBaseLevel, waterBaseLevel * (0.35f + enemies[i].sizeRandMult * 0.3f));
+                            enemies[i].agent.SetDestination(escapePos);
+                            break;
+                        case EnemyBehaviour.Chase:
+                            enemies[i].transform.rotation = Quaternion.Lerp(enemies[i].transform.rotation,
+                                Quaternion.LookRotation((playerLocation - enemies[i].transform.position).normalized, Vector3.up),
+                                4f * 3f * Time.deltaTime);
+                            if (totalMass > enemies[i].mass * 2f) { enemies[i].enemyBehaviour = EnemyBehaviour.Escape; }
+                            //
+                            if (targetDistanceMagnitude < 1f)
                             {
-                                enemies[i].agent.SetDestination(playerLocation);
+                                if (enemies[i].attackTimer < 0.33f)
+                                {
+                                    AgentBody attackBody = enemies[i].agent.EntityBody;
+                                    attackBody.Destination = playerLocation + targetDistanceVector.normalized * 2f;
+                                    attackBody.Force = targetDistanceVector.normalized;
+                                    attackBody.Velocity = targetDistanceVector.normalized;
+                                    attackBody.IsStopped = false;
+                                    enemies[i].agent.EntityBody = attackBody;
+                                    enemies[i].attackToken = true;
+                                    enemies[i].attackTimer += Time.deltaTime;
+                                }
+                                else
+                                {
+                                    AgentBody attackBody = enemies[i].agent.EntityBody;
+                                    attackBody.Destination = playerLocation + targetDistanceVector.normalized * 2f;
+                                    attackBody.Force = targetDistanceVector.normalized * 7.5f;
+                                    attackBody.Velocity = targetDistanceVector.normalized * 7.5f;
+                                    attackBody.IsStopped = false;
+                                    enemies[i].agent.EntityBody = attackBody;
+                                    enemies[i].attackToken = true;
+                                    enemies[i].attackTimer = 0f;
+                                    enemies[i].enemyBehaviour = EnemyBehaviour.Attack;
+                                    enemies[i].attackAudioSource.Play();
+                                    Debug.Log("Attack By " + enemies[i].name);
+                                }
                             }
                             else
                             {
-                                Vector3 escapePos = (enemies[i].transform.position - playerLocation).normalized * 10f;
-                                escapePos.y = Mathf.Clamp(escapePos.y, waterBaseLevel, waterBaseLevel * (0.35f + enemies[i].sizeRandMult * 0.3f));
-                                enemies[i].agent.SetDestination(escapePos);
+                                enemies[i].attackTimer = 0f;
+                                enemies[i].agent.SetDestination(playerLocation);
+                            }
+                            break;
+                        case EnemyBehaviour.Attack:
+                            enemies[i].attackTimer += Time.deltaTime;
+                            if (targetDistanceMagnitude < 0.25f && enemies[i].attackToken)
+                            {
+                                enemies[i].attackToken = false;
+                                totalMass = Mathf.Max(0f, totalMass - 0.1f);
+                                GameManager.Instance.OnPlayerHit(enemies[i], totalMass);
+                            }
+                            if (enemies[i].attackTimer > 1.66f)
+                            {
+                                enemies[i].enemyBehaviour = EnemyBehaviour.Chase;
+                                enemies[i].attackToken = false;
+                                enemies[i].attackTimer = 0f;
                             }
                             break;
                     }
@@ -59,8 +109,8 @@ public class EnemyManager : MonoBehaviour
         {
             if (enemies[i] == null)
             {
-                Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-5, 5) * Vector3.right
-                    + UnityEngine.Random.Range(-5, 5) * Vector3.forward;
+                Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-8f, 8f) * Vector3.right
+                    + UnityEngine.Random.Range(-8f, 8f) * Vector3.forward + UnityEngine.Random.Range(0f, 2f) * Vector3.up;
 
                 GameObject goCache = enemySpawnProbs[0].spawnPrefab;
                 int rand = Mathf.RoundToInt(UnityEngine.Random.Range(0f, 100f));
@@ -72,8 +122,7 @@ public class EnemyManager : MonoBehaviour
                         break;
                     }
                 }
-                // GameObject goCache = Instantiate(enemyPrefab, spawnPosCache, Quaternion.identity);
-
+                //
                 enemies[i] = goCache.GetComponent<EnemyData>();
                 enemies[i].gameObject.name = "Enemy-" + i;
                 enemies[i].enemyBehaviour = behaviour;
@@ -81,7 +130,7 @@ public class EnemyManager : MonoBehaviour
                 enemies[i].mesh.localScale = sizeRand * Vector3.one;
                 enemies[i].mass *= sizeRand;
                 enemies[i].sizeRandMult = sizeRand;
-                enemies[i].audioSource.volume = 0.3f;
+                enemies[i].getHitAudioSource.volume = 0.3f;
                 Debug.Log("Spawn Enemy Index-" + i);
                 return;
             }
@@ -91,7 +140,10 @@ public class EnemyManager : MonoBehaviour
     }
     public void KillEnemy(int index)
     {
-        enemies[index].animator.Play("Death", 0);
+        if (enemies[index].animator != null)
+        {
+            enemies[index].animator.Play("Death", 0);
+        }
         enemies[index].capsuleCollider.enabled = false;
         enemies[index].dead = true;
         enemies[index].agent.enabled = false;
@@ -100,9 +152,10 @@ public class EnemyManager : MonoBehaviour
         {
             RemoveEnemyObject(index);
         });
-        enemies[index].audioSource.Play();
+        enemies[index].getHitAudioSource.Play();
         enemies[index].deathVFX.SetActive(true);
-        totalMass += enemies[index].mass * enemies[index].mesh.localScale.x;
+        //
+        totalMass += enemies[index].mass * enemies[index].mesh.localScale.x * 0.25f;
     }
     public float GetTotalMass() { return totalMass; }
     public void RemoveEnemyObject(int index)

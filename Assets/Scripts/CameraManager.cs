@@ -111,4 +111,13 @@ public class CameraManager : MonoBehaviour
     {
         CameraTransform.DOPunchRotation(Vector3.right * 5f, 0.75f, 6);
     }
+    public void DeathReaction(float waterBaseLevel)
+    {
+        CameraTransform.DOPunchRotation(Vector3.right * 6f, 1f, 6);
+        CameraTransform.DOMoveY(waterBaseLevel + 0.2f, Mathf.Abs(CameraTransform.position.y - waterBaseLevel) * 0.75f).SetEase(Ease.InOutSine);
+        FollowingSharpness = 1f;
+        DistanceMovementSharpness = 1f;
+        frameOffset = Vector2.up * 0.1f;
+        distanceMax = 3f;
+    }
 }

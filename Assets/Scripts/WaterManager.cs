@@ -24,17 +24,14 @@ public class WaterManager : MonoBehaviour
         Vector3 centerPos = Vector3.zero;
         for (int i = 0; i < initialSnakeRocks.Length; i++)
         {
-            centerPos += initialSnakeRocks[i].position;
+            centerPos += initialSnakeRocks[i].transform.position;
         }
         centerPos *= 0.33f;
         for (int i = 0; i < initialSnakeRocks.Length; i++)
         {
             initialSnakeRocks[i].AddExplosionForce(800f, centerPos + Vector3.up * 0.1f, 6f, 8f);
             initialSnakeRocks[i].transform.DOShakeRotation(1.5f, 30, 6);
-            initialSnakeRocks[i].transform.DOScale(0f, 4f).SetEase(Ease.InQuad).OnComplete(() =>
-            {
-                Destroy(initialSnakeRocks[i].gameObject, 1f);
-            });
+            initialSnakeRocks[i].transform.DOScale(0f, 4f).SetEase(Ease.InQuad);
         }
     }
 }

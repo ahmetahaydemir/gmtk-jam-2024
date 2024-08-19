@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CanvasManager : MonoBehaviour
 {
@@ -15,10 +16,9 @@ public class CanvasManager : MonoBehaviour
     public CanvasGroup mainMenuGroup;
     public CanvasGroup inGameGroup;
     //
-    public static event Action OnPlayClick;
-    //
     public TextMeshProUGUI depthText;
     public TextMeshProUGUI sizeText;
+    public Image sizeBg;
     public RectTransform sizeFillRect;
     public RectTransform sizeBgRect;
     //
@@ -35,7 +35,7 @@ public class CanvasManager : MonoBehaviour
             mainMenuGroup.interactable = false;
             mainMenuGroup.blocksRaycasts = false;
         });
-        OnPlayClick?.Invoke();
+        GameManager.Instance.OnPlayClicked();
     }
     public void OnOptionsButtonClick()
     {
@@ -59,5 +59,11 @@ public class CanvasManager : MonoBehaviour
     {
         depthText.text = string.Format("{0:F1} M", waterDepth);
         sizeText.text = string.Format("{0:F1} KG", playerSize);
+    }
+    public void DeathReaction()
+    {
+        sizeText.text = string.Format("{0:F1} KG", 0);
+        sizeBg.color = (Color.red * 0.5f + Color.white * 0.5f);
+        sizeBg.transform.parent.DOPunchScale(Vector3.one * 1.05f, 1f);
     }
 }
