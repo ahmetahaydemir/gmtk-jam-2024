@@ -12,9 +12,11 @@ public class CanvasManager : MonoBehaviour
     public CanvasGroup mainMenuGroup;
     public CanvasGroup inGameGroup;
     public CanvasGroup popupPhaseGroup;
+    public CanvasGroup completedPanelGroup;
     public GameObject creditsPanel;
     public GameObject optionsPanel;
     //
+    public TextMeshProUGUI gameLoseText;
     public GenericSlider musicVolumeSlider;
     public GenericSlider sfxVolumeSlider;
     public TextMeshProUGUI depthText;
@@ -28,6 +30,12 @@ public class CanvasManager : MonoBehaviour
     public TextMeshProUGUI phaseDepthText;
     public AudioSource phaseChangeSFX;
     //
+    [Header("Boss")]
+    public CanvasGroup bossHealthGroup;
+    public Image healthBackLine;
+    public Image healthFillLine;
+    public Image healthTrailLine;
+    //
     private Tween creditsShowTween;
     private Tween optionsShowTween;
     //
@@ -39,6 +47,56 @@ public class CanvasManager : MonoBehaviour
         exitButton.buttonReference.onClick.AddListener(OnExitButtonClick);
         musicVolumeSlider.ListenEvent(OnMusicVolumeSlider);
         sfxVolumeSlider.ListenEvent(OnSFXVolumeSlider);
+    }
+    //
+    public void OnGameCompleted()
+    {
+        bossHealthGroup.transform.DOPunchPosition(Vector3.down * 4f, 2f).OnComplete(() =>
+        {
+            bossHealthGroup.DOFade(0f, 0.75f).SetEase(Ease.InOutSine).OnComplete(() =>
+            {
+                completedPanelGroup.DOFade(0f, 0.75f).SetEase(Ease.InOutSine);
+            });
+        });
+    }
+    //
+    private float healthLengthTarget;
+    private float healthLengthCache;
+    private float healthLengthFull;
+    private Tween healthPulse;
+    private Color healthPulseColor;
+    private float healthTrailSpeed;
+    public void ShowBossHealthBar()
+    {
+        bossHealthGroup.DOFade(1f, 0.6f).SetEase(Ease.InOutSine);
+        healthLengthFull = 1f;
+        healthLengthTarget = healthLengthFull;
+        healthLengthCache = healthLengthFull;
+    }
+    public void UpdateBossHealthBar(float healthRatio)
+    {
+        healthLengthTarget = healthLengthFull * healthRatio;
+        healthLengthCache = Mathf.Lerp(healthLengthCache, healthLengthTarget, Time.deltaTime * 5f);
+        //
+        healthFillLine.transform.localScale = Vector3.right * (healthLengthTarget) + Vector3.up + Vector3.forward;
+        healthTrailLine.transform.localScale = Vector3.right * (healthLengthCache) + Vector3.up + Vector3.forward;
+    }
+    public void PulseBossHealth()
+    {
+        if (healthPulse != null)
+        {
+            healthPulse.Restart();
+        }
+        else
+        {
+            healthPulseColor = healthFillLine.color;
+            healthPulse = DOVirtual.Float(0f, 0.5f, 0.5f, time =>
+                    {
+                        healthTrailSpeed = 0f;
+                        healthFillLine.color = Color.Lerp(healthPulseColor * 1.5f, healthPulseColor, time * 4f);
+                    }).OnComplete(() => { healthTrailSpeed = 5f * 0.6f; });
+            healthPulse.SetAutoKill(false);
+        }
     }
     //
     public void OnPlayButtonClick()
@@ -131,12 +189,14 @@ public class CanvasManager : MonoBehaviour
         depthText.text = string.Format("{0:F1} M", waterDepth);
         sizeText.text = string.Format("{0:F1} KG", playerSize);
     }
-    public void DeathReaction()
+    public void DeathReaction(float waterBaseLevel)
     {
         colorTween.Kill();
         sizeText.text = string.Format("{0:F1} KG", 0);
         sizeBg.color = (Color.red * 0.4f + Color.white * 0.6f);
         sizeBg.transform.parent.DOPunchScale(Vector3.one * 0.5f, 1f);
+        gameLoseText.gameObject.SetActive(true);
+        gameLoseText.DOFade(1f, 1f).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo);
     }
     private Tween phaseColorTween;
     private Tween phaseSizeTween;
@@ -189,7 +249,7 @@ public class CanvasManager : MonoBehaviour
                 phaseDepthText.text = "Depth Level < ?????";
                 //
                 phaseColorTween.Kill();
-                sizeBg.color = (Color.red * 0.4f + Color.white * 0.6f);
+                depthBg.color = (Color.red * 0.4f + Color.white * 0.6f);
                 break;
         }
         //

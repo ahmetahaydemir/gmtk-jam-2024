@@ -15421,6 +15421,8 @@ MonoBehaviour:
   enemyBehaviour: 2
   attackTimer: 0
   attackToken: 0
+  attackMassAmount: 0.2
+  attackRecoveryTime: 1.5
   attackAudioSource: {fileID: -1480386077395784033}
   healthMass: 0
 --- !u!82 &8870577584427650232

@@ -78,9 +78,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MotionType: 3
-  Speed: 3
-  Acceleration: 8
-  AngularSpeed: 150
+  Speed: 2
+  Acceleration: 6
+  AngularSpeed: 120
   StoppingDistance: 0.5
   AutoBreaking: 1
   m_Layers: 1
@@ -132,7 +132,7 @@ MonoBehaviour:
   agent: {fileID: 8485579644770989140}
   mesh: {fileID: 1787542836959157728}
   animator: {fileID: 0}
-  mass: 50
+  mass: 100
   sizeRandMult: 1
   capsuleCollider: {fileID: 3361928853744860590}
   deathVFX: {fileID: 6306904078666543681}
@@ -143,6 +143,8 @@ MonoBehaviour:
   enemyBehaviour: 2
   attackTimer: 0
   attackToken: 0
+  attackMassAmount: 6.4
+  attackRecoveryTime: 2.5
   attackAudioSource: {fileID: 2954831101344579567}
   healthMass: 0
 --- !u!82 &1780524495482598588

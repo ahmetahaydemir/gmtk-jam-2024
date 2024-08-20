@@ -126,6 +126,12 @@ public class GameManager : MonoBehaviour
                         }
                     }
                     break;
+                case 4:
+                    if (enemyManager.bossEnemy != null)
+                    {
+                        canvasManager.UpdateBossHealthBar(enemyManager.bossEnemy.GetHealthRatio());
+                    }
+                    break;
             }
         }
         //
@@ -150,6 +156,15 @@ public class GameManager : MonoBehaviour
     {
         enemyManager.OnEnemyHit(enemyIndex, charge);
     }
+    public void UpdateBossState()
+    {
+
+    }
+    public void OnGameCompleted()
+    {
+        waterManager.OnGameCompleted(playerManager.playerTransform);
+        canvasManager.OnGameCompleted();
+    }
     public void OnPlayerGrow(float growAmount)
     {
         playerManager.GrowReaction(growAmount);
@@ -163,7 +178,7 @@ public class GameManager : MonoBehaviour
             over = true;
             cameraManager.DeathReaction(waterManager.waterBase.transform.position.y);
             playerManager.DeathReaction(waterManager.waterBase.transform.position.y);
-            canvasManager.DeathReaction();
+            canvasManager.DeathReaction(waterManager.waterBase.transform.position.y);
         }
     }
     public void OnPlayClicked()
@@ -191,6 +206,7 @@ public class GameManager : MonoBehaviour
         {
             cameraManager.ShakeCamera();
             enemyManager.SpawnBossObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
+            canvasManager.ShowBossHealthBar();
         });
     }
     //

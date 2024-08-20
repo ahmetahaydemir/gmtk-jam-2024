@@ -12,17 +12,20 @@ public class WaterManager : MonoBehaviour
     public Transform waterBase;
     public Transform waterCover;
     public GameObject bubbleExpObject;
+    public GameObject gameWinEffect;
+    public AudioSource gameWinSFX;
     //
     public Rigidbody[] initialSnakeRocks;
     //
     private Vector3 scaleCache;
+    private bool gameOver;
     //
     public void UpdateWaterProgress(float time, int phase)
     {
-        if (waterBase.position.y > -150f)
+        if (waterBase.position.y > -150f && !gameOver)
         {
             scaleCache = waterContainer.localScale;
-            scaleCache.y = 1f + time * 0.1f;
+            scaleCache.y = 1f + time * 0.5f;
             waterContainer.localScale = scaleCache;
         }
     }
@@ -58,5 +61,15 @@ public class WaterManager : MonoBehaviour
             initialSnakeRocks[i].transform.DOScale(0f, 4f).SetEase(Ease.InQuad);
         }
         bubbleExpObject.SetActive(true);
+    }
+    public void OnGameCompleted(Transform playerTrans)
+    {
+        DOVirtual.Float(0f, 1f, 10f, time =>/*  */
+                    {
+                        gameWinEffect.transform.position = playerTrans.position + Vector3.up * (2f + time);
+                    });
+        gameWinEffect.SetActive(true);
+        gameWinSFX.Play();
+        gameOver = true;
     }
 }

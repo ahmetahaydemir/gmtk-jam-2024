@@ -16,8 +16,15 @@ public class EnemyData : MonoBehaviour
     public EnemyBehaviour enemyBehaviour;
     public float attackTimer;
     public bool attackToken;
+    public float attackMassAmount;
+    public float attackRecoveryTime;
     public AudioSource attackAudioSource;
     public float healthMass;
+    //
+    public float GetHealthRatio()
+    {
+        return (healthMass * 1f) / (mass * 1f);
+    }
 }
 public enum EnemyBehaviour
 {

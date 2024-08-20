@@ -23,6 +23,7 @@ public class EnemyManager : MonoBehaviour
     //
     [Header("Runtime Pool")]
     public EnemyData[] enemies;
+    public EnemyData bossEnemy;
     //
     private Vector3 targetDistanceVector;
     private float targetDistanceMagnitude;
@@ -70,7 +71,7 @@ public class EnemyManager : MonoBehaviour
                                 if (enemies[i].attackTimer < 0.33f)
                                 {
                                     AgentBody attackBody = enemies[i].agent.EntityBody;
-                                    attackBody.Destination = playerLocation + targetDistanceVector.normalized * 2f;
+                                    attackBody.Destination = playerLocation + targetDistanceVector.normalized * 2.25f;
                                     attackBody.Force = targetDistanceVector.normalized;
                                     attackBody.Velocity = targetDistanceVector.normalized;
                                     attackBody.IsStopped = false;
@@ -81,7 +82,7 @@ public class EnemyManager : MonoBehaviour
                                 else
                                 {
                                     AgentBody attackBody = enemies[i].agent.EntityBody;
-                                    attackBody.Destination = playerLocation + targetDistanceVector.normalized * 2f;
+                                    attackBody.Destination = playerLocation + targetDistanceVector.normalized * 2.25f;
                                     attackBody.Force = targetDistanceVector.normalized * 7.5f;
                                     attackBody.Velocity = targetDistanceVector.normalized * 7.5f;
                                     attackBody.IsStopped = false;
@@ -103,10 +104,10 @@ public class EnemyManager : MonoBehaviour
                             if (targetDistanceMagnitude < 0.25f && enemies[i].attackToken)
                             {
                                 enemies[i].attackToken = false;
-                                totalMass = Mathf.Max(0f, totalMass - 0.1f);
+                                totalMass = Mathf.Max(0f, totalMass - enemies[i].attackMassAmount * enemies[i].sizeRandMult);
                                 GameManager.Instance.OnPlayerHit(enemies[i], totalMass);
                             }
-                            if (enemies[i].attackTimer > 1.66f)
+                            if (enemies[i].attackTimer > enemies[i].attackRecoveryTime)
                             {
                                 enemies[i].enemyBehaviour = EnemyBehaviour.Chase;
                                 enemies[i].attackToken = false;
@@ -198,9 +199,9 @@ public class EnemyManager : MonoBehaviour
     }
     public void SpawnBossObject(Vector3 playerLocation, float waterBaseLevel)
     {
-        Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-8f, 8f) * Vector3.right
-                            + UnityEngine.Random.Range(-8f, 8f) * Vector3.forward + UnityEngine.Random.Range(-4f, 4f) * Vector3.up;
-        spawnPosCache.y = Mathf.Clamp(waterBaseLevel + 1, -1f, spawnPosCache.y);
+        Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-9f, 9f) * Vector3.right
+                            + UnityEngine.Random.Range(-9f, 9f) * Vector3.forward + UnityEngine.Random.Range(-3f, 3f) * Vector3.up;
+        spawnPosCache.y = Mathf.Clamp(spawnPosCache.y, waterBaseLevel + 1, -1f);
 
         GameObject goCache = Instantiate(phaseFiveSpawn, spawnPosCache, Quaternion.identity);
 
@@ -209,19 +210,21 @@ public class EnemyManager : MonoBehaviour
             if (enemies[i] == null)
             {
                 enemies[i] = goCache.GetComponent<EnemyData>();
+                bossEnemy = enemies[i];
                 enemies[i].gameObject.name = "Boss-" + i;
                 if (enemies[i].animator != null)
                 {
                     enemies[i].animator.Play("Idle_A");
                 }
+                enemies[i].healthMass = enemies[i].mass;
                 enemies[i].sizeRandMult = 1f;
                 enemies[i].getHitAudioSource.volume = 0.33f;
+                return;
             }
         }
     }
     public void OnEnemyHit(int index, float charge)
     {
-        Debug.Log(totalMass * charge + "|" + enemies[index].healthMass);
         if (totalMass * charge > enemies[index].healthMass)
         {
             // Killed
@@ -236,6 +239,7 @@ public class EnemyManager : MonoBehaviour
             enemies[index].dead = true;
             enemies[index].capsuleCollider.enabled = false;
             enemies[index].agent.enabled = false;
+            enemies[index].healthMass = 0f;
             enemies[index].mesh.DOMove(enemies[index].transform.position - Vector3.up * (enemies[index].transform.position.y + 0.5f), 4f).SetEase(Ease.InOutSine);
             enemies[index].mesh.DOScale(0f, 3f).SetEase(Ease.InOutSine);
             enemies[index].mesh.DOShakeRotation(4.5f, 25, 5).OnComplete(() =>
@@ -245,8 +249,13 @@ public class EnemyManager : MonoBehaviour
             enemies[index].deathAudioSource.Play();
             enemies[index].deathVFX.SetActive(true);
             //
-            totalMass += enemies[index].mass * enemies[index].mesh.localScale.x * 0.1f;
-            GameManager.Instance.OnPlayerGrow((enemies[index].mass * enemies[index].mesh.localScale.x * 0.1f) / totalMass);
+            totalMass += enemies[index].mass * enemies[index].mesh.localScale.x * 0.15f;
+            GameManager.Instance.OnPlayerGrow((enemies[index].mass * enemies[index].mesh.localScale.x * 0.15f) / totalMass);
+            //
+            if (enemies[index] == bossEnemy)
+            {
+                GameManager.Instance.OnGameCompleted();
+            }
         }
         else
         {
@@ -256,6 +265,11 @@ public class EnemyManager : MonoBehaviour
             enemies[index].getHitAudioSource.Play();
             enemies[index].getHitVFX.SetActive(false);
             enemies[index].getHitVFX.SetActive(true);
+        }
+        //
+        if (enemies[index] == bossEnemy)
+        {
+            GameManager.Instance.UpdateBossState();
         }
     }
     public float GetTotalMass() { return totalMass; }
