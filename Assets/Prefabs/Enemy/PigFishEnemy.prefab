@@ -144,9 +144,9 @@ MonoBehaviour:
   enemyBehaviour: 2
   attackTimer: 0
   attackToken: 0
-  attackMassAmount: 9.7
-  attackRecoveryTime: 3.5
-  attackDistance: 49
+  attackMassAmount: 11.7
+  attackRecoveryTime: 3
+  attackDistance: 100
   attackAudioSource: {fileID: 2954831101344579567}
   healthMass: 100
   isBoss: 1

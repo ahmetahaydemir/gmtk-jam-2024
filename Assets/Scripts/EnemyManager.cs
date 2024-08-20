@@ -68,7 +68,7 @@ public class EnemyManager : MonoBehaviour
                             //
                             if (targetDistanceMagnitude < enemies[i].attackDistance)
                             {
-                                if (enemies[i].attackTimer < 0.375f)
+                                if (enemies[i].attackTimer < 0.4f)
                                 {
                                     AgentBody attackBody = enemies[i].agent.EntityBody;
                                     attackBody.Destination = playerLocation + targetDistanceVector.normalized * (enemies[i].attackDistance * 0.5f + 2.25f);
@@ -96,15 +96,15 @@ public class EnemyManager : MonoBehaviour
                                     AgentBody attackBody = enemies[i].agent.EntityBody;
                                     if (enemies[i].isBoss)
                                     {
-                                        attackBody.Destination = playerLocation + targetDistanceVector.normalized * (enemies[i].attackDistance * 0.75f + 2.5f);
-                                        attackBody.Force = targetDistanceVector.normalized * 25f;
-                                        attackBody.Velocity = targetDistanceVector.normalized * 25f;
+                                        attackBody.Destination = playerLocation + targetDistanceVector.normalized * (enemies[i].attackDistance * 0.8f + 8f);
+                                        attackBody.Force = targetDistanceVector.normalized * 32f;
+                                        attackBody.Velocity = targetDistanceVector.normalized * 32f;
                                     }
                                     else
                                     {
-                                        attackBody.Destination = playerLocation + targetDistanceVector.normalized * (enemies[i].attackDistance * 0.4f + 2.25f);
-                                        attackBody.Force = targetDistanceVector.normalized * (enemies[i].attackDistance * 0.2f + 7.5f);
-                                        attackBody.Velocity = targetDistanceVector.normalized * (enemies[i].attackDistance * 0.2f + 7.5f);
+                                        attackBody.Destination = playerLocation + targetDistanceVector.normalized * (enemies[i].attackDistance * 0.45f + 2.25f);
+                                        attackBody.Force = targetDistanceVector.normalized * (enemies[i].attackDistance * 0.4f + 8f);
+                                        attackBody.Velocity = targetDistanceVector.normalized * (enemies[i].attackDistance * 0.4f + 8f);
                                     }
                                     attackBody.IsStopped = false;
                                     enemies[i].agent.EntityBody = attackBody;
@@ -122,11 +122,23 @@ public class EnemyManager : MonoBehaviour
                             break;
                         case EnemyBehaviour.Attack:
                             enemies[i].attackTimer += Time.deltaTime;
-                            if (targetDistanceMagnitude < 0.25f && enemies[i].attackToken)
+                            if (enemies[i].isBoss)
                             {
-                                enemies[i].attackToken = false;
-                                totalMass = Mathf.Max(0f, totalMass - enemies[i].attackMassAmount * enemies[i].sizeRandMult);
-                                GameManager.Instance.OnPlayerHit(enemies[i], totalMass);
+                                if (targetDistanceMagnitude < 6f && enemies[i].attackToken)
+                                {
+                                    enemies[i].attackToken = false;
+                                    totalMass = Mathf.Max(0f, totalMass - enemies[i].attackMassAmount * enemies[i].sizeRandMult);
+                                    GameManager.Instance.OnPlayerHit(enemies[i], totalMass);
+                                }
+                            }
+                            else
+                            {
+                                if (targetDistanceMagnitude < (0.25f + enemies[i].attackMassAmount * 0.1f) && enemies[i].attackToken)
+                                {
+                                    enemies[i].attackToken = false;
+                                    totalMass = Mathf.Max(0f, totalMass - enemies[i].attackMassAmount * enemies[i].sizeRandMult);
+                                    GameManager.Instance.OnPlayerHit(enemies[i], totalMass);
+                                }
                             }
                             if (enemies[i].attackTimer > enemies[i].attackRecoveryTime)
                             {
