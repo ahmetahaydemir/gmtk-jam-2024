@@ -1,3 +1,6 @@
+using System;
+using System.Text;
+using System.Threading;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -17,6 +20,7 @@ public class CanvasManager : MonoBehaviour
     public GameObject optionsPanel;
     //
     public TextMeshProUGUI gameLoseText;
+    public TextMeshProUGUI gameWinText;
     public GenericSlider musicVolumeSlider;
     public GenericSlider sfxVolumeSlider;
     public TextMeshProUGUI depthText;
@@ -49,13 +53,32 @@ public class CanvasManager : MonoBehaviour
         sfxVolumeSlider.ListenEvent(OnSFXVolumeSlider);
     }
     //
-    public void OnGameCompleted()
+    public void OnGameCompleted(float waterBaseLevel, float size, float time)
     {
         bossHealthGroup.transform.DOPunchPosition(Vector3.down * 4f, 2f).OnComplete(() =>
         {
             bossHealthGroup.DOFade(0f, 0.75f).SetEase(Ease.InOutSine).OnComplete(() =>
             {
-                completedPanelGroup.DOFade(0f, 0.75f).SetEase(Ease.InOutSine);
+                completedPanelGroup.gameObject.SetActive(true);
+                completedPanelGroup.DOFade(1f, 0.75f).SetEase(Ease.InOutSine);
+                gameWinText.gameObject.SetActive(true);
+                gameWinText.DOFade(1f, 1.4f).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo);
+                //
+                int seconds = Mathf.RoundToInt(time) % 60;
+                int minutes = Mathf.RoundToInt(time / 60f);
+                string timeFormat = string.Format("{0}:{1}", minutes, seconds);
+                //
+                StringBuilder stringBuilder = new StringBuilder();
+                stringBuilder.AppendLine("! You Win !");
+                stringBuilder.Append("Depth : <color=#0088A8>");
+                stringBuilder.Append(string.Format("{0:F1} M", waterBaseLevel));
+                stringBuilder.Append("</color> - Size : <color=#629651>");
+                stringBuilder.Append(string.Format("{0:F1} KG", size));
+                stringBuilder.Append("</color> - Time : <color=#8C5555>");
+                stringBuilder.Append(timeFormat);
+                stringBuilder.AppendLine("</color>");
+                stringBuilder.Append("Press <color=#505050>ESC</color> To Scale Down And Rise Again");
+                gameWinText.text = stringBuilder.ToString();
             });
         });
     }
@@ -197,6 +220,7 @@ public class CanvasManager : MonoBehaviour
         sizeBg.transform.parent.DOPunchScale(Vector3.one * 0.5f, 1f);
         gameLoseText.gameObject.SetActive(true);
         gameLoseText.DOFade(1f, 1f).SetEase(Ease.InOutSine).SetLoops(-1, LoopType.Yoyo);
+        bossHealthGroup.gameObject.SetActive(false);
     }
     private Tween phaseColorTween;
     private Tween phaseSizeTween;
@@ -264,5 +288,9 @@ public class CanvasManager : MonoBehaviour
                     });
                 });
             });
+    }
+    public void OpenURL(string url)
+    {
+        Application.OpenURL(url);
     }
 }

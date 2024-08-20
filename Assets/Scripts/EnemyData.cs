@@ -18,8 +18,10 @@ public class EnemyData : MonoBehaviour
     public bool attackToken;
     public float attackMassAmount;
     public float attackRecoveryTime;
+    public float attackDistance;
     public AudioSource attackAudioSource;
     public float healthMass;
+    public bool isBoss;
     //
     public float GetHealthRatio()
     {

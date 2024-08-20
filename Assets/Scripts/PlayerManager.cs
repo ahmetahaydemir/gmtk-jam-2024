@@ -21,6 +21,7 @@ public class PlayerManager : MonoBehaviour
     public AudioSource getHitSFX;
     public GameObject deathVFX;
     public GameObject growVFX;
+    public GameObject dodgeIndicator;
 
     //
     private Vector3 inputRawDirection;
@@ -36,11 +37,13 @@ public class PlayerManager : MonoBehaviour
     private List<int> attackActionIndexHistory;
     private int getHitIndex;
     private int attackHitIndex;
+    private float dodgeTimer;
     //
     void Awake()
     {
         playerHead.DOShakeRotation(3.5f, 8, 3).SetLoops(-1, LoopType.Yoyo);
         attackActionIndexHistory = new();
+        dodgeTimer = 5f;
     }
     //
     public void UpdatePlayerAction(InputCache inputCache, float waterBaseLevel, float totalMass, int phase)
@@ -193,10 +196,33 @@ public class PlayerManager : MonoBehaviour
     }
     public void DodgeAction(InputCache inputCache)
     {
-        if (inputCache.dodgeInput)
+        dodgeTimer += Time.deltaTime;
+        if (dodgeTimer > 2.25f)
         {
-            inputCache.dodgeInput = false;
-            _additivePosVector += -playerTransform.right * 8f;
+            dodgeIndicator.SetActive(true);
+            if (inputCache.rightClickInput)
+            {
+                if (inputCache.moveInput.sqrMagnitude > 0.5)
+                {
+                    inputCache.rightClickInput = false;
+                    _additivePosVector += _moveInputVector * 14f;
+                    dodgeTimer = 0f;
+                    dodgeIndicator.transform.DOScale(0.01f, 0.25f).OnComplete(() =>
+                    {
+                        dodgeIndicator.transform.DOScale(0.1f, 2f).SetEase(Ease.InOutSine);
+                    });
+                }
+                else
+                {
+                    inputCache.rightClickInput = false;
+                    _additivePosVector += -(-playerTransform.up * 0.25f + playerTransform.forward) * 14f;
+                    dodgeTimer = 0f;
+                    dodgeIndicator.transform.DOScale(0.01f, 0.25f).OnComplete(() =>
+                    {
+                        dodgeIndicator.transform.DOScale(0.1f, 2f).SetEase(Ease.InOutSine);
+                    });
+                }
+            }
         }
     }
     public void AttackAction(InputCache inputCache)

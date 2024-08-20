@@ -64,15 +64,6 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
-                    ""name"": ""Dodge"",
-                    ""type"": ""Button"",
-                    ""id"": ""6d4a5cb6-3db6-4b7a-be83-b7f2c373111d"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """",
-                    ""initialStateCheck"": true
-                },
-                {
                     ""name"": ""Sprint"",
                     ""type"": ""PassThrough"",
                     ""id"": ""42a06b31-e475-4de8-8690-52e75bdab0a1"",
@@ -191,17 +182,6 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""38690722-1eb2-4bff-bc78-0eed52eff1e7"",
-                    ""path"": ""<Keyboard>/q"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Dodge"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""52b5131a-df65-4d43-bd73-2ba731bd4c56"",
                     ""path"": ""<Keyboard>/leftShift"",
                     ""interactions"": """",
@@ -225,7 +205,7 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""e2f25cf5-16aa-4919-aab4-c254ce08f8af"",
-                    ""path"": ""<VirtualMouse>/rightButton"",
+                    ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -244,7 +224,6 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         m_Player_Look = m_Player.FindAction("Look", throwIfNotFound: true);
         m_Player_Zoom = m_Player.FindAction("Zoom", throwIfNotFound: true);
         m_Player_Rise = m_Player.FindAction("Rise", throwIfNotFound: true);
-        m_Player_Dodge = m_Player.FindAction("Dodge", throwIfNotFound: true);
         m_Player_Sprint = m_Player.FindAction("Sprint", throwIfNotFound: true);
         m_Player_LeftClick = m_Player.FindAction("LeftClick", throwIfNotFound: true);
         m_Player_RightClick = m_Player.FindAction("RightClick", throwIfNotFound: true);
@@ -313,7 +292,6 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
     private readonly InputAction m_Player_Look;
     private readonly InputAction m_Player_Zoom;
     private readonly InputAction m_Player_Rise;
-    private readonly InputAction m_Player_Dodge;
     private readonly InputAction m_Player_Sprint;
     private readonly InputAction m_Player_LeftClick;
     private readonly InputAction m_Player_RightClick;
@@ -325,7 +303,6 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         public InputAction @Look => m_Wrapper.m_Player_Look;
         public InputAction @Zoom => m_Wrapper.m_Player_Zoom;
         public InputAction @Rise => m_Wrapper.m_Player_Rise;
-        public InputAction @Dodge => m_Wrapper.m_Player_Dodge;
         public InputAction @Sprint => m_Wrapper.m_Player_Sprint;
         public InputAction @LeftClick => m_Wrapper.m_Player_LeftClick;
         public InputAction @RightClick => m_Wrapper.m_Player_RightClick;
@@ -350,9 +327,6 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Rise.started += instance.OnRise;
             @Rise.performed += instance.OnRise;
             @Rise.canceled += instance.OnRise;
-            @Dodge.started += instance.OnDodge;
-            @Dodge.performed += instance.OnDodge;
-            @Dodge.canceled += instance.OnDodge;
             @Sprint.started += instance.OnSprint;
             @Sprint.performed += instance.OnSprint;
             @Sprint.canceled += instance.OnSprint;
@@ -378,9 +352,6 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
             @Rise.started -= instance.OnRise;
             @Rise.performed -= instance.OnRise;
             @Rise.canceled -= instance.OnRise;
-            @Dodge.started -= instance.OnDodge;
-            @Dodge.performed -= instance.OnDodge;
-            @Dodge.canceled -= instance.OnDodge;
             @Sprint.started -= instance.OnSprint;
             @Sprint.performed -= instance.OnSprint;
             @Sprint.canceled -= instance.OnSprint;
@@ -413,7 +384,6 @@ public partial class @GameInput: IInputActionCollection2, IDisposable
         void OnLook(InputAction.CallbackContext context);
         void OnZoom(InputAction.CallbackContext context);
         void OnRise(InputAction.CallbackContext context);
-        void OnDodge(InputAction.CallbackContext context);
         void OnSprint(InputAction.CallbackContext context);
         void OnLeftClick(InputAction.CallbackContext context);
         void OnRightClick(InputAction.CallbackContext context);

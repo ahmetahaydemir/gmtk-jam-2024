@@ -163,7 +163,7 @@ public class GameManager : MonoBehaviour
     public void OnGameCompleted()
     {
         waterManager.OnGameCompleted(playerManager.playerTransform);
-        canvasManager.OnGameCompleted();
+        canvasManager.OnGameCompleted(waterManager.waterBase.transform.position.y, enemyManager.GetTotalMass(),timer);
     }
     public void OnPlayerGrow(float growAmount)
     {

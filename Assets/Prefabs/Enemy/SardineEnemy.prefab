@@ -20397,6 +20397,7 @@ MonoBehaviour:
   attackToken: 0
   attackMassAmount: 0.1
   attackRecoveryTime: 1.5
+  attackDistance: 1
   attackAudioSource: {fileID: 1601402512912014272}
   healthMass: 0
 --- !u!82 &4398812210786723140

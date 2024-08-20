@@ -42,15 +42,6 @@
                     "initialStateCheck": true
                 },
                 {
-                    "name": "Dodge",
-                    "type": "Button",
-                    "id": "6d4a5cb6-3db6-4b7a-be83-b7f2c373111d",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": "",
-                    "initialStateCheck": true
-                },
-                {
                     "name": "Sprint",
                     "type": "PassThrough",
                     "id": "42a06b31-e475-4de8-8690-52e75bdab0a1",
@@ -169,17 +160,6 @@
                 },
                 {
                     "name": "",
-                    "id": "38690722-1eb2-4bff-bc78-0eed52eff1e7",
-                    "path": "<Keyboard>/q",
-                    "interactions": "",
-                    "processors": "",
-                    "groups": "",
-                    "action": "Dodge",
-                    "isComposite": false,
-                    "isPartOfComposite": false
-                },
-                {
-                    "name": "",
                     "id": "52b5131a-df65-4d43-bd73-2ba731bd4c56",
                     "path": "<Keyboard>/leftShift",
                     "interactions": "",
@@ -203,7 +183,7 @@
                 {
                     "name": "",
                     "id": "e2f25cf5-16aa-4919-aab4-c254ce08f8af",
-                    "path": "<VirtualMouse>/rightButton",
+                    "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

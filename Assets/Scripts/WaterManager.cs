@@ -25,7 +25,7 @@ public class WaterManager : MonoBehaviour
         if (waterBase.position.y > -150f && !gameOver)
         {
             scaleCache = waterContainer.localScale;
-            scaleCache.y = 1f + time * 0.5f;
+            scaleCache.y = 1f + time * 0.1f;
             waterContainer.localScale = scaleCache;
         }
     }
@@ -64,12 +64,24 @@ public class WaterManager : MonoBehaviour
     }
     public void OnGameCompleted(Transform playerTrans)
     {
-        DOVirtual.Float(0f, 1f, 10f, time =>/*  */
+        DOVirtual.Float(0f, 1f, 10f, time =>
                     {
                         gameWinEffect.transform.position = playerTrans.position + Vector3.up * (2f + time);
                     });
         gameWinEffect.SetActive(true);
         gameWinSFX.Play();
         gameOver = true;
+        DOVirtual.Float(sun.intensity, 1.5f, 6f, (float x) =>
+        {
+            sun.intensity = x;
+        });
+        DOVirtual.Float(underwater.fogBrightness, 1.1f, 6f, (float y) =>
+        {
+            underwater.fogBrightness = y;
+        });
+        DOVirtual.Float(musicSource.pitch, 1f, 10f, (float z) =>
+        {
+            musicSource.pitch = z;
+        });
     }
 }

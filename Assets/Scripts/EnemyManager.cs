@@ -54,7 +54,7 @@ public class EnemyManager : MonoBehaviour
                             enemies[i].agent.SetDestination(neutralPos);
                             break;
                         case EnemyBehaviour.Escape:
-                            if (totalMass < enemies[i].mass * 0.75f) { enemies[i].enemyBehaviour = EnemyBehaviour.Chase; }
+                            if (totalMass < enemies[i].mass * 2f) { enemies[i].enemyBehaviour = EnemyBehaviour.Chase; }
                             //
                             Vector3 escapePos = (enemies[i].transform.position - playerLocation).normalized * 6f;
                             escapePos.y = Mathf.Clamp(escapePos.y, waterBaseLevel, waterBaseLevel * (0.35f + enemies[i].sizeRandMult * 0.3f));
@@ -64,27 +64,48 @@ public class EnemyManager : MonoBehaviour
                             enemies[i].transform.rotation = Quaternion.Lerp(enemies[i].transform.rotation,
                                 Quaternion.LookRotation((playerLocation - enemies[i].transform.position).normalized, Vector3.up),
                                 4f * 3f * Time.deltaTime);
-                            if (totalMass > enemies[i].mass * 3f) { enemies[i].enemyBehaviour = EnemyBehaviour.Escape; }
+                            if (totalMass > enemies[i].mass * 4f) { enemies[i].enemyBehaviour = EnemyBehaviour.Escape; }
                             //
-                            if (targetDistanceMagnitude < 1f)
+                            if (targetDistanceMagnitude < enemies[i].attackDistance)
                             {
-                                if (enemies[i].attackTimer < 0.33f)
+                                if (enemies[i].attackTimer < 0.375f)
                                 {
                                     AgentBody attackBody = enemies[i].agent.EntityBody;
-                                    attackBody.Destination = playerLocation + targetDistanceVector.normalized * 2.25f;
-                                    attackBody.Force = targetDistanceVector.normalized;
-                                    attackBody.Velocity = targetDistanceVector.normalized;
+                                    attackBody.Destination = playerLocation + targetDistanceVector.normalized * (enemies[i].attackDistance * 0.5f + 2.25f);
+                                    attackBody.Force = targetDistanceVector.normalized * 0.25f;
+                                    attackBody.Velocity = targetDistanceVector.normalized * 0.25f;
                                     attackBody.IsStopped = false;
                                     enemies[i].agent.EntityBody = attackBody;
+                                    if (!enemies[i].attackToken)
+                                    {
+                                        if (enemies[i].isBoss)
+                                        {
+                                            enemies[i].mesh.transform.DOPunchPosition((enemies[i].mesh.transform.forward - Vector3.up * 0.1f) * 0.1f, 0.5f).SetEase(Ease.InOutSine);
+                                            enemies[i].mesh.transform.DOPunchScale(Vector3.one * 0.1f, 0.5f).SetEase(Ease.InOutSine);
+                                        }
+                                        else
+                                        {
+                                            enemies[i].mesh.transform.DOPunchPosition((enemies[i].mesh.transform.forward - Vector3.up * 0.05f) * 0.2f, 0.5f).SetEase(Ease.InOutSine);
+                                        }
+                                    }
                                     enemies[i].attackToken = true;
                                     enemies[i].attackTimer += Time.deltaTime;
                                 }
                                 else
                                 {
                                     AgentBody attackBody = enemies[i].agent.EntityBody;
-                                    attackBody.Destination = playerLocation + targetDistanceVector.normalized * 2.25f;
-                                    attackBody.Force = targetDistanceVector.normalized * 7.5f;
-                                    attackBody.Velocity = targetDistanceVector.normalized * 7.5f;
+                                    if (enemies[i].isBoss)
+                                    {
+                                        attackBody.Destination = playerLocation + targetDistanceVector.normalized * (enemies[i].attackDistance * 0.75f + 2.5f);
+                                        attackBody.Force = targetDistanceVector.normalized * 25f;
+                                        attackBody.Velocity = targetDistanceVector.normalized * 25f;
+                                    }
+                                    else
+                                    {
+                                        attackBody.Destination = playerLocation + targetDistanceVector.normalized * (enemies[i].attackDistance * 0.4f + 2.25f);
+                                        attackBody.Force = targetDistanceVector.normalized * (enemies[i].attackDistance * 0.2f + 7.5f);
+                                        attackBody.Velocity = targetDistanceVector.normalized * (enemies[i].attackDistance * 0.2f + 7.5f);
+                                    }
                                     attackBody.IsStopped = false;
                                     enemies[i].agent.EntityBody = attackBody;
                                     enemies[i].attackToken = true;
@@ -125,8 +146,8 @@ public class EnemyManager : MonoBehaviour
         {
             if (enemies[i] == null)
             {
-                Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-8f, 8f) * Vector3.right
-                    + UnityEngine.Random.Range(-8f, 8f) * Vector3.forward + UnityEngine.Random.Range(0f, 2f) * Vector3.up;
+                Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-12f, 12f) * Vector3.right
+                    + UnityEngine.Random.Range(-12f, 12f) * Vector3.forward + UnityEngine.Random.Range(-4f, -1f) * Vector3.up;
 
                 GameObject goCache = phaseOneSpawnPool[0].spawnPrefab;
                 int rand = Mathf.RoundToInt(UnityEngine.Random.Range(0f, 100f));
@@ -199,8 +220,8 @@ public class EnemyManager : MonoBehaviour
     }
     public void SpawnBossObject(Vector3 playerLocation, float waterBaseLevel)
     {
-        Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-9f, 9f) * Vector3.right
-                            + UnityEngine.Random.Range(-9f, 9f) * Vector3.forward + UnityEngine.Random.Range(-3f, 3f) * Vector3.up;
+        Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-12f, -6f) * Vector3.right
+                            + UnityEngine.Random.Range(-12f, -6f) * Vector3.forward + UnityEngine.Random.Range(-5f, 1f) * Vector3.up;
         spawnPosCache.y = Mathf.Clamp(spawnPosCache.y, waterBaseLevel + 1, -1f);
 
         GameObject goCache = Instantiate(phaseFiveSpawn, spawnPosCache, Quaternion.identity);
@@ -249,8 +270,8 @@ public class EnemyManager : MonoBehaviour
             enemies[index].deathAudioSource.Play();
             enemies[index].deathVFX.SetActive(true);
             //
-            totalMass += enemies[index].mass * enemies[index].mesh.localScale.x * 0.15f;
-            GameManager.Instance.OnPlayerGrow((enemies[index].mass * enemies[index].mesh.localScale.x * 0.15f) / totalMass);
+            totalMass += enemies[index].mass * enemies[index].mesh.localScale.x * 0.175f;
+            GameManager.Instance.OnPlayerGrow((enemies[index].mass * enemies[index].mesh.localScale.x * 0.175f) / totalMass);
             //
             if (enemies[index] == bossEnemy)
             {

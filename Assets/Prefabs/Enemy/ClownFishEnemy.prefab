@@ -35336,7 +35336,7 @@ MonoBehaviour:
   mesh: {fileID: 3938711677829691167}
   animator: {fileID: 3938711677820623101}
   mass: 0.6
-  sizeRandMult: 0
+  sizeRandMult: 1
   capsuleCollider: {fileID: 4509976612708982768}
   deathVFX: {fileID: 4857250250721984117}
   getHitVFX: {fileID: 2486006332180396578}
@@ -35347,7 +35347,8 @@ MonoBehaviour:
   attackTimer: 0
   attackToken: 0
   attackMassAmount: 0.1
-  attackRecoveryTime: 1.5
+  attackRecoveryTime: 2
+  attackDistance: 1
   attackAudioSource: {fileID: 7254162579221660352}
   healthMass: 0
 --- !u!82 &6920195256856234069
