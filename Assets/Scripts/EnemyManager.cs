@@ -2,6 +2,7 @@ using UnityEngine;
 using DG.Tweening;
 using System;
 using ProjectDawn.Navigation;
+using System.Linq.Expressions;
 public class EnemyManager : MonoBehaviour
 {
     [Header("Shallow Coast")]
@@ -29,7 +30,7 @@ public class EnemyManager : MonoBehaviour
     //
     public void Awake()
     {
-        totalMass = 0.1f;
+        totalMass = 0.5f;
     }
     //
     public void UpdateEnemyAction(Vector3 playerLocation, float waterBaseLevel)
@@ -186,6 +187,7 @@ public class EnemyManager : MonoBehaviour
                 float sizeRand = UnityEngine.Random.Range(0.75f, 1.25f);
                 enemies[i].mesh.localScale = sizeRand * Vector3.one;
                 enemies[i].mass *= sizeRand;
+                enemies[i].healthMass = enemies[i].mass;
                 enemies[i].sizeRandMult = sizeRand;
                 enemies[i].getHitAudioSource.volume = 0.33f;
                 return;
@@ -197,7 +199,8 @@ public class EnemyManager : MonoBehaviour
     public void SpawnBossObject(Vector3 playerLocation, float waterBaseLevel)
     {
         Vector3 spawnPosCache = playerLocation + UnityEngine.Random.Range(-8f, 8f) * Vector3.right
-                            + UnityEngine.Random.Range(-8f, 8f) * Vector3.forward + UnityEngine.Random.Range(0f, 2f) * Vector3.up;
+                            + UnityEngine.Random.Range(-8f, 8f) * Vector3.forward + UnityEngine.Random.Range(-4f, 4f) * Vector3.up;
+        spawnPosCache.y = Mathf.Clamp(waterBaseLevel + 1, -1f, spawnPosCache.y);
 
         GameObject goCache = Instantiate(phaseFiveSpawn, spawnPosCache, Quaternion.identity);
 
@@ -216,28 +219,43 @@ public class EnemyManager : MonoBehaviour
             }
         }
     }
-    public void KillEnemy(int index)
+    public void OnEnemyHit(int index)
     {
-        if (enemies[index].animator != null)
+        Debug.Log(totalMass + "|" + enemies[index].healthMass);
+        if (totalMass > enemies[index].healthMass)
         {
-            enemies[index].animator.Play("Death", 0);
+            // Killed
+            if (enemies[index].animator != null)
+            {
+                enemies[index].animator.Play("Death", 0);
+            }
+            else
+            {
+                enemies[index].transform.DORotate(180f * Vector3.forward, 1.25f).SetEase(Ease.OutSine);
+            }
+            enemies[index].dead = true;
+            enemies[index].capsuleCollider.enabled = false;
+            enemies[index].agent.enabled = false;
+            enemies[index].mesh.DOMove(enemies[index].transform.position - Vector3.up * (enemies[index].transform.position.y + 0.5f), 4f).SetEase(Ease.InOutSine);
+            enemies[index].mesh.DOScale(0f, 3f).SetEase(Ease.InOutSine);
+            enemies[index].mesh.DOShakeRotation(4.5f, 25, 5).OnComplete(() =>
+            {
+                RemoveEnemyObject(index);
+            });
+            enemies[index].deathAudioSource.Play();
+            enemies[index].deathVFX.SetActive(true);
+            //
+            totalMass += enemies[index].mass * enemies[index].mesh.localScale.x * 0.1f;
         }
         else
         {
-            enemies[index].transform.DORotate(180f * Vector3.forward, 1.25f).SetEase(Ease.OutSine);
+            // Just Hit
+            enemies[index].healthMass -= totalMass;
+            enemies[index].mesh.DOPunchRotation(5f * Vector3.forward, 0.5f).SetEase(Ease.OutSine);
+            enemies[index].getHitAudioSource.Play();
+            enemies[index].getHitVFX.SetActive(false);
+            enemies[index].getHitVFX.SetActive(true);
         }
-        enemies[index].capsuleCollider.enabled = false;
-        enemies[index].dead = true;
-        enemies[index].agent.enabled = false;
-        enemies[index].mesh.DOMove(enemies[index].transform.position - Vector3.up * (enemies[index].transform.position.y + 0.5f), 4f).SetEase(Ease.InOutSine);
-        enemies[index].mesh.DOShakeRotation(5f, 30, 6).OnComplete(() =>
-        {
-            RemoveEnemyObject(index);
-        });
-        enemies[index].getHitAudioSource.Play();
-        enemies[index].deathVFX.SetActive(true);
-        //
-        totalMass += enemies[index].mass * enemies[index].mesh.localScale.x * 0.1f;
     }
     public float GetTotalMass() { return totalMass; }
     public void RemoveEnemyObject(int index)

@@ -18,9 +18,12 @@ public class WaterManager : MonoBehaviour
     //
     public void UpdateWaterProgress(float time, int phase)
     {
-        scaleCache = waterContainer.localScale;
-        scaleCache.y = 1f + time * 0.375f;
-        waterContainer.localScale = scaleCache;
+        if (waterBase.position.y > -150f)
+        {
+            scaleCache = waterContainer.localScale;
+            scaleCache.y = 1f + time * 0.1f;
+            waterContainer.localScale = scaleCache;
+        }
     }
     //
     public void WaterDeepVisual(int phase)

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
 public class PlayerManager : MonoBehaviour
@@ -13,7 +14,9 @@ public class PlayerManager : MonoBehaviour
     public Transform playerHead;
     public LayerMask enemyLayer;
     public AudioSource attackChargeSFX;
+    public GameObject attackChargeVFX;
     public AudioSource attackActionSFX;
+    public GameObject attackActionVFX;
     public GameObject[] getHitVFXArray;
     public AudioSource getHitSFX;
     public GameObject deathVFX;
@@ -28,11 +31,14 @@ public class PlayerManager : MonoBehaviour
     private float attackActionTimer;
     private bool attackActionToken;
     private RaycastHit[] attackActionHit;
+    private List<int> attackActionIndexHistory;
     private int getHitIndex;
+    private int attackHitIndex;
     //
     void Awake()
     {
         playerHead.DOShakeRotation(3.5f, 8, 3).SetLoops(-1, LoopType.Yoyo);
+        attackActionIndexHistory = new();
     }
     //
     public void UpdatePlayerAction(InputCache inputCache, float waterBaseLevel, float totalMass, int phase)
@@ -192,6 +198,8 @@ public class PlayerManager : MonoBehaviour
             attackChargeTimer = 0f;
             attackCharging = true;
             attackChargeSFX.Play();
+            attackChargeVFX.SetActive(false);
+            attackChargeVFX.SetActive(true);
         }
         else
         {
@@ -203,11 +211,16 @@ public class PlayerManager : MonoBehaviour
                 if (!inputCache.leftClickInput)
                 {
                     attackChargeSFX.Stop();
+                    attackChargeVFX.SetActive(false);
                     attackActionSFX.Play();
+                    attackActionVFX.SetActive(false);
+                    attackActionVFX.SetActive(true);
                     if (attackChargeTimer > 0.25f)
                     {
                         _additivePosVector += playerTransform.forward * Mathf.Lerp(6f, 18f, attackChargeTimer * 0.5f);
+                        attackActionVFX.transform.localScale = Vector3.one * Mathf.Lerp(0.5f, 1.5f, attackChargeTimer * 0.5f);
                         attackCharging = false;
+                        attackActionIndexHistory.Clear();
                         attackActionToken = true;
                         attackActionTimer = 0f;
                         playerHead.DOScale(Vector3.one, 0.5f).SetEase(Ease.InOutBounce);
@@ -215,7 +228,9 @@ public class PlayerManager : MonoBehaviour
                     else
                     {
                         _additivePosVector += playerTransform.forward * 6f;
+                        attackActionVFX.transform.localScale = Vector3.one * 0.5f;
                         attackCharging = false;
+                        attackActionIndexHistory.Clear();
                         attackActionToken = true;
                         attackActionTimer = 0f;
                         playerHead.DOScale(Vector3.one, 0.2f).SetEase(Ease.OutSine);
@@ -232,8 +247,13 @@ public class PlayerManager : MonoBehaviour
                 {
                     for (int i = 0; i < attackActionHit.Length; i++)
                     {
-                        Debug.Log("Hit on " + attackActionHit[i].transform.name);
-                        GameManager.Instance.OnEnemyHit(int.Parse(attackActionHit[i].transform.name.Split('-')[1]));
+                        attackHitIndex = int.Parse(attackActionHit[i].transform.name.Split('-')[1]);
+                        if (!attackActionIndexHistory.Contains((attackHitIndex)))
+                        {
+                            Debug.Log("Hit on " + attackActionHit[i].transform.name);
+                            attackActionIndexHistory.Add(attackHitIndex);
+                            GameManager.Instance.OnEnemyHit(attackHitIndex);
+                        }
                     }
                 }
             }
@@ -241,6 +261,7 @@ public class PlayerManager : MonoBehaviour
             if (attackActionTimer > 0.75f)
             {
                 attackActionToken = false;
+                attackActionIndexHistory.Clear();
                 attackActionTimer = 0f;
             }
         }

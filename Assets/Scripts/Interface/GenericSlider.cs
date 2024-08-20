@@ -8,8 +8,8 @@ public class GenericSlider : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     [Header("Generic")]
     public Slider sliderReference;
     public GameObject hoverReference;
-    public string audioPathHover;
-    public string audioPathClick;
+    public AudioSource audioSourceHover;
+    public AudioSource audioSourceClick;
     //
     void Update()
     {
@@ -46,6 +46,7 @@ public class GenericSlider : MonoBehaviour, IPointerEnterHandler, IPointerExitHa
     public void OnSelect(BaseEventData eventData)
     {
         if (hoverReference != null) { hoverReference.SetActive(true); }
+        audioSourceHover.Play();
     }
     //
     public void OnDeselect(BaseEventData eventData)

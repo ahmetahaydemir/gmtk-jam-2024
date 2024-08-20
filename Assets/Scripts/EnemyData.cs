@@ -9,12 +9,15 @@ public class EnemyData : MonoBehaviour
     public float sizeRandMult;
     public CapsuleCollider capsuleCollider;
     public GameObject deathVFX;
+    public GameObject getHitVFX;
     public AudioSource getHitAudioSource;
+    public AudioSource deathAudioSource;
     public bool dead;
     public EnemyBehaviour enemyBehaviour;
     public float attackTimer;
     public bool attackToken;
     public AudioSource attackAudioSource;
+    public float healthMass;
 }
 public enum EnemyBehaviour
 {

@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
     private int phase;
     private float interval;
     //
+    public static float musicVolume;
+    public static float sfxVolume;
+    //
     public static GameManager Instance;
     void Awake()
     {
@@ -30,6 +33,23 @@ public class GameManager : MonoBehaviour
         timer = 0f;
         cameraManager.Initialize(playerManager.playerTransform, playerManager.playerCamera);
         transitionManager.TransitionOut();
+        if (PlayerPrefs.HasKey("musicVolume"))
+        {
+            musicVolume = PlayerPrefs.GetFloat("musicVolume");
+        }
+        else
+        {
+            musicVolume = 1f;
+        }
+        if (PlayerPrefs.HasKey("sfxVolume"))
+        {
+            sfxVolume = PlayerPrefs.GetFloat("sfxVolume");
+        }
+        else
+        {
+            sfxVolume = 1f;
+        }
+        SetVolumeLevel();
     }
     //
     public void Update()
@@ -53,7 +73,7 @@ public class GameManager : MonoBehaviour
                 case 0:
                     if (timer > interval)
                     {
-                        interval += 0.7f;
+                        interval += 0.5f;
                         enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
                     }
                     if (enemyManager.phaseOneSpawnDepth > waterManager.waterBase.transform.position.y)
@@ -66,7 +86,7 @@ public class GameManager : MonoBehaviour
                 case 1:
                     if (timer > interval)
                     {
-                        interval += 0.85f;
+                        interval += 0.75f;
                         enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
                     }
                     if (enemyManager.phaseTwoSpawnDepth > waterManager.waterBase.transform.position.y)
@@ -79,7 +99,7 @@ public class GameManager : MonoBehaviour
                 case 2:
                     if (timer > interval)
                     {
-                        interval += 1f;
+                        interval += 0.85f;
                         enemyManager.SpawnEnemyObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
                     }
                     if (enemyManager.phaseThreeSpawnDepth > waterManager.waterBase.transform.position.y)
@@ -128,11 +148,12 @@ public class GameManager : MonoBehaviour
     //
     public void OnEnemyHit(int enemyIndex)
     {
-        enemyManager.KillEnemy(enemyIndex);
+        enemyManager.OnEnemyHit(enemyIndex);
     }
     public void OnPlayerHit(EnemyData enemyData, float totalMass)
     {
         playerManager.GetHitReaction(enemyData);
+        canvasManager.HitSizeTweenEffect();
         if (totalMass <= 0.01f)
         {
             over = true;
@@ -167,5 +188,18 @@ public class GameManager : MonoBehaviour
             cameraManager.ShakeCamera();
             enemyManager.SpawnBossObject(playerManager.playerTransform.position, waterManager.waterBase.transform.position.y);
         });
+    }
+    //
+    public void SetVolumeLevel()
+    {
+        if (PlayerPrefs.HasKey("musicVolume"))
+        {
+            musicVolume = PlayerPrefs.GetFloat("musicVolume");
+        }
+        if (PlayerPrefs.HasKey("sfxVolume"))
+        {
+            sfxVolume = PlayerPrefs.GetFloat("sfxVolume");
+        }
+        waterManager.musicSource.volume = musicVolume;
     }
 }
