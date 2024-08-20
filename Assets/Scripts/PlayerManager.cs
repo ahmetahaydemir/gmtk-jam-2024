@@ -16,10 +16,12 @@ public class PlayerManager : MonoBehaviour
     public AudioSource attackChargeSFX;
     public GameObject attackChargeVFX;
     public AudioSource attackActionSFX;
-    public GameObject attackActionVFX;
+    public ParticleSystem attackActionVFX;
     public GameObject[] getHitVFXArray;
     public AudioSource getHitSFX;
     public GameObject deathVFX;
+    public GameObject growVFX;
+
     //
     private Vector3 inputRawDirection;
     private Vector3 _moveInputVector;
@@ -99,6 +101,12 @@ public class PlayerManager : MonoBehaviour
         playerTransform.DOShakeRotation(3f, 45, 5);
         playerTransform.DOScale(0.25f, 3f).SetEase(Ease.OutBounce);
         playerTransform.DOMoveY(waterBaseLevel + 0.06f, Mathf.Abs(playerTransform.position.y - waterBaseLevel) * 0.75f).SetEase(Ease.InOutSine);
+    }
+    public void GrowReaction(float growRatio)
+    {
+        growVFX.transform.localScale = Vector3.one * (0.25f + growRatio);
+        growVFX.SetActive(false);
+        growVFX.SetActive(true);
     }
     public void InputMove(InputCache inputCache)
     {
@@ -206,18 +214,18 @@ public class PlayerManager : MonoBehaviour
             if (attackCharging)
             {
                 attackChargeTimer += Time.deltaTime;
-                playerHead.localScale = Vector3.one * (1f + Mathf.Clamp(attackChargeTimer, 0f, 2f) * 0.25f);
+                playerHead.localScale = Vector3.one * (1f + Mathf.Clamp(attackChargeTimer, 0f, 2.5f) * 0.25f);
                 //
                 if (!inputCache.leftClickInput)
                 {
                     attackChargeSFX.Stop();
                     attackChargeVFX.SetActive(false);
                     attackActionSFX.Play();
-                    attackActionVFX.SetActive(false);
-                    attackActionVFX.SetActive(true);
+                    attackActionVFX.gameObject.SetActive(true);
+                    attackActionVFX.Play();
                     if (attackChargeTimer > 0.25f)
                     {
-                        _additivePosVector += playerTransform.forward * Mathf.Lerp(6f, 18f, attackChargeTimer * 0.5f);
+                        _additivePosVector += playerTransform.forward * Mathf.Lerp(6f, 20f, attackChargeTimer * 0.5f);
                         attackActionVFX.transform.localScale = Vector3.one * Mathf.Lerp(0.5f, 1.5f, attackChargeTimer * 0.5f);
                         attackCharging = false;
                         attackActionIndexHistory.Clear();
@@ -252,7 +260,7 @@ public class PlayerManager : MonoBehaviour
                         {
                             Debug.Log("Hit on " + attackActionHit[i].transform.name);
                             attackActionIndexHistory.Add(attackHitIndex);
-                            GameManager.Instance.OnEnemyHit(attackHitIndex);
+                            GameManager.Instance.OnEnemyHit(attackHitIndex, Mathf.Lerp(0.75f, 1.8f, attackChargeTimer * 0.5f));
                         }
                     }
                 }
@@ -261,6 +269,7 @@ public class PlayerManager : MonoBehaviour
             if (attackActionTimer > 0.75f)
             {
                 attackActionToken = false;
+                attackActionVFX.Stop();
                 attackActionIndexHistory.Clear();
                 attackActionTimer = 0f;
             }

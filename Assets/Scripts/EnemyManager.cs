@@ -219,10 +219,10 @@ public class EnemyManager : MonoBehaviour
             }
         }
     }
-    public void OnEnemyHit(int index)
+    public void OnEnemyHit(int index, float charge)
     {
-        Debug.Log(totalMass + "|" + enemies[index].healthMass);
-        if (totalMass > enemies[index].healthMass)
+        Debug.Log(totalMass * charge + "|" + enemies[index].healthMass);
+        if (totalMass * charge > enemies[index].healthMass)
         {
             // Killed
             if (enemies[index].animator != null)
@@ -246,11 +246,12 @@ public class EnemyManager : MonoBehaviour
             enemies[index].deathVFX.SetActive(true);
             //
             totalMass += enemies[index].mass * enemies[index].mesh.localScale.x * 0.1f;
+            GameManager.Instance.OnPlayerGrow((enemies[index].mass * enemies[index].mesh.localScale.x * 0.1f) / totalMass);
         }
         else
         {
             // Just Hit
-            enemies[index].healthMass -= totalMass;
+            enemies[index].healthMass -= totalMass * charge;
             enemies[index].mesh.DOPunchRotation(5f * Vector3.forward, 0.5f).SetEase(Ease.OutSine);
             enemies[index].getHitAudioSource.Play();
             enemies[index].getHitVFX.SetActive(false);

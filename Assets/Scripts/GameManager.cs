@@ -146,9 +146,13 @@ public class GameManager : MonoBehaviour
         }
     }
     //
-    public void OnEnemyHit(int enemyIndex)
+    public void OnEnemyHit(int enemyIndex, float charge)
     {
-        enemyManager.OnEnemyHit(enemyIndex);
+        enemyManager.OnEnemyHit(enemyIndex, charge);
+    }
+    public void OnPlayerGrow(float growAmount)
+    {
+        playerManager.GrowReaction(growAmount);
     }
     public void OnPlayerHit(EnemyData enemyData, float totalMass)
     {

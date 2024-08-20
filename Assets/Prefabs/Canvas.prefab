@@ -9427,6 +9427,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlayButton
       objectReference: {fileID: 0}
+    - target: {fileID: 4313816547406265901, guid: bdf71ce634c367e47a5ab52cb9a2b1f2,
+        type: 3}
+      propertyPath: m_audioClip
+      value: 
+      objectReference: {fileID: 8300000, guid: 88eb5a016e4ff4b478b830cfb4ffd7dd, type: 3}
     - target: {fileID: 5256637098965497088, guid: bdf71ce634c367e47a5ab52cb9a2b1f2,
         type: 3}
       propertyPath: m_RaycastTarget

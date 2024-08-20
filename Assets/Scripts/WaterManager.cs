@@ -11,6 +11,7 @@ public class WaterManager : MonoBehaviour
     public Transform waterContainer;
     public Transform waterBase;
     public Transform waterCover;
+    public GameObject bubbleExpObject;
     //
     public Rigidbody[] initialSnakeRocks;
     //
@@ -56,5 +57,6 @@ public class WaterManager : MonoBehaviour
             initialSnakeRocks[i].transform.DOShakeRotation(1.5f, 30, 6);
             initialSnakeRocks[i].transform.DOScale(0f, 4f).SetEase(Ease.InQuad);
         }
+        bubbleExpObject.SetActive(true);
     }
 }
